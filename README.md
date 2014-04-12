@@ -3,6 +3,21 @@ Affiliate system for django
 
 Allows to track affiliate code. So it is possible to log this code at needed moment, for example when payments are made.
 
+Example
+-------
+
+Visitor goes to site with affiliate code:
+
+        http://site.com/?aid=12345
+
+Now all urls, rendered using {% url_aff %} template tag will keep this code.
+
+        {% url_aff 'news' %}
+
+Will render automatically
+
+        /news/?aid=12345
+
 
 Requirements
 -----------
@@ -37,3 +52,10 @@ Quick start
 5. In your template use 'url_aff' instead of 'url' template tag:
 
         <a href="{% url_aff 'home' %}">Home</a>
+
+6. Optional. Specify affiliate parameter name in settings.py:
+
+    # Optional. Default is 'aid'
+    AFFILIATE_PARAM_NAME = 'aid'
+
+
