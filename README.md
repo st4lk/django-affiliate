@@ -55,7 +55,7 @@ Quick start
 
 6. Optional. Specify affiliate parameter name in settings.py:
 
-    # Optional. Default is 'aid'
-    AFFILIATE_PARAM_NAME = 'aid'
+        # Optional. Default is 'aid'
+        AFFILIATE_PARAM_NAME = 'aid'
 
 
