@@ -9,3 +9,6 @@ README.rst
 generate_rst.py
 build/
 .coverage
+*.log
+*.sqlite
+*.sqlite3

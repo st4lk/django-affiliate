@@ -1,0 +1,23 @@
+{% extends "account/base.html" %}
+
+{% load url from future %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load affiliate_urls %}
+
+{% block title %}{% trans "Signup" %}{% endblock title %}
+
+{% block content %}
+<h1>{% trans "Sign Up" %}</h1>
+
+<form class="signup" id="signup_form" method="post" action=".">
+  {% csrf_token %}
+  {{ form|crispy }}
+  <input type="hidden" name="next" value="{% url_aff 'home' %}" />
+  <button class="btn btn-success" type="submit">{% trans "Sign Up" %} &raquo;</button>
+</form>
+
+
+{% endblock content %}
+
+
