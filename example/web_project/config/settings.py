@@ -70,7 +70,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite'),
     }
 }
 
@@ -183,6 +183,8 @@ USE_TZ = True
 # Affiliate settings
 AFFILIATE_SESSION = True
 AFFILIATE_SESSION_AGE = 24 * 60 * 60  # in seconds
+AFFILIATE_MODEL = "users.Affiliate"
+AFFILIATE_SKIP_PATH_STARTS = ['/admin/']
 
 
 ########## LOGGING CONFIGURATION
@@ -255,7 +257,7 @@ LOGGING = {
         },
         'django.db': {
             'propagate': False,
-            'handlers': ['debug_file'],
+            'handlers': ["console", 'debug_file'],
         },
         'py.warnings': {
             'handlers': ['null', ],

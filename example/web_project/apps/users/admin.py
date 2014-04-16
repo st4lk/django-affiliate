@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-
-from .models import User
+from affiliate.admin import BaseAffiliateAdmin
+from .models import User, Affiliate
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -10,4 +10,9 @@ class UserAdmin(admin.ModelAdmin):
     update_form_class = UserChangeForm
 
 
+class AffiliateAdmin(BaseAffiliateAdmin):
+    pass
+
+
 admin.site.register(User, UserAdmin)
+admin.site.register(Affiliate, AffiliateAdmin)

@@ -12,3 +12,4 @@ build/
 *.log
 *.sqlite
 *.sqlite3
+*.backup
