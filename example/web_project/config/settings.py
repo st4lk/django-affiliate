@@ -56,6 +56,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'affiliate.middleware.AffiliateMiddleware',
 )
 
 ROOT_URLCONF = 'config.urls'
@@ -179,6 +180,10 @@ USE_L10N = True
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
 
+# Affiliate settings
+AFFILIATE_SESSION = True
+AFFILIATE_SESSION_AGE = 24 * 60 * 60  # in seconds
+
 
 ########## LOGGING CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#logging
@@ -247,6 +252,10 @@ LOGGING = {
         },
         'django': {
             'handlers': ['null', ],
+        },
+        'django.db': {
+            'propagate': False,
+            'handlers': ['debug_file'],
         },
         'py.warnings': {
             'handlers': ['null', ],
