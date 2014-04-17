@@ -4,7 +4,6 @@ import logging
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.db.models.loading import get_model
-from django.db.models import F
 from .tools import get_affiliate_param_name, remove_affiliate_code
 from relish.helpers.request import get_client_ip
 
@@ -55,9 +54,7 @@ class AffiliateMiddleware(object):
                 and self.is_track_path(request.path):
             now = datetime.now()
             ip = get_client_ip(request)
-            nb = AffiliateModelCount.objects.filter(
-                affiliate=aid, date=now, ip=ip).update(
-                count_views=F('count_views')+1)
+            nb = AffiliateModelCount.objects.incr_count_views(aid, now, ip)
             if not nb:
                 try:
                     aff = AffiliateModel.objects.get(aid=aid)

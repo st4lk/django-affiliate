@@ -3,6 +3,7 @@ from decimal import Decimal as D
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+from .managers import AffiliateCountManager
 
 
 class AbstractAffiliate(models.Model):
@@ -23,7 +24,11 @@ class AbstractAffiliate(models.Model):
         return self.aid
 
     def generate_aid(self):
-        pass
+        try:
+            last_aid = self.objects.order_by("-aid")[0].aid
+        except IndexError:
+            last_aid = "100"
+        return str(int(last_aid) + 1)
 
 
 class AbstractAffiliateCount(models.Model):
@@ -35,9 +40,13 @@ class AbstractAffiliateCount(models.Model):
     ip = models.IPAddressField()
     date = models.DateField(_("Date"), auto_now_add=True)
 
+    objects = AffiliateCountManager()
+
     class Meta:
         abstract = True
-        # TODO would be create to have following fields as compound primary key
+        # TODO would be great to have following fields as compound primary key
+        # look https://code.djangoproject.com/wiki/MultipleColumnPrimaryKeys
+        # and https://code.djangoproject.com/ticket/373
         index_together = [
             ["affiliate", "date", "ip"],
         ]
