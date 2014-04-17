@@ -180,12 +180,13 @@ USE_L10N = True
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
 
-# Affiliate settings
+# Affiliate required settings
+AFFILIATE_MODEL = "users.Affiliate"
+AFFILIATE_COUNT_MODEL = "users.AffiliateCount"
+# Affiliate optional settings
 AFFILIATE_SESSION = True
 AFFILIATE_SESSION_AGE = 24 * 60 * 60  # in seconds
-AFFILIATE_MODEL = "users.Affiliate"
 AFFILIATE_SKIP_PATH_STARTS = ['/admin/']
-
 
 ########## LOGGING CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#logging

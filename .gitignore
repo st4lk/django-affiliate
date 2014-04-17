@@ -13,3 +13,5 @@ build/
 *.sqlite
 *.sqlite3
 *.backup
+settings_local.py
+initial_data.json

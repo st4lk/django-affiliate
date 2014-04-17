@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect
 from django.db.models.loading import get_model
 from django.db.models import F
 from .tools import get_affiliate_param_name, remove_affiliate_code
+from relish.helpers.request import get_client_ip
 
 l = logging.getLogger(__name__)
 
@@ -15,8 +16,10 @@ AFFILIATE_SESSION = getattr(settings, 'AFFILIATE_SESSION', True)
 AFFILIATE_SESSION_AGE = getattr(settings, 'AFFILIATE_SESSION_AGE', 24*60*60)
 AFFILIATE_SKIP_PATH = getattr(settings, 'AFFILIATE_SKIP_PATH_STARTS', [])
 AFFILIATE_MODEL = settings.AFFILIATE_MODEL
+AFFILIATE_COUNT_MODEL = settings.AFFILIATE_COUNT_MODEL
 
 AffiliateModel = get_model(*AFFILIATE_MODEL.split("."))
+AffiliateModelCount = get_model(*AFFILIATE_COUNT_MODEL.split("."))
 
 
 class AffiliateMiddleware(object):
@@ -50,8 +53,19 @@ class AffiliateMiddleware(object):
         aid = request.aid
         if aid and response.status_code == 200\
                 and self.is_track_path(request.path):
-            AffiliateModel.objects.filter(aid=aid).update(
+            now = datetime.now()
+            ip = get_client_ip(request)
+            nb = AffiliateModelCount.objects.filter(
+                affiliate=aid, date=now, ip=ip).update(
                 count_views=F('count_views')+1)
+            if not nb:
+                try:
+                    aff = AffiliateModel.objects.get(aid=aid)
+                    AffiliateModelCount.objects.create(affiliate=aff,
+                        ip=ip, count_views=1)
+                except AffiliateModel.DoesNotExist:
+                    l.warning("Access with unknown affiliate code: {0}"
+                        .format(aid))
         return response
 
     def is_track_path(self, path):
