@@ -8,8 +8,9 @@ from django.conf import settings
 class AbstractAffiliate(models.Model):
     aid = models.CharField(_("Affiliate code"), max_length=150,
         unique=True, primary_key=True)
-    # count_views = models.IntegerField(_("Page views count"), default=0)
-    count_payments = models.IntegerField(_("Payments count"), default=0)
+    total_payments_count = models.IntegerField(_("Payments count"), default=0)
+    total_payed = models.DecimalField(_("Payed to affiliate"), max_digits=6,
+        decimal_places=2, default=D("0.0"))
     balance = models.DecimalField(_("Affiliate balance"), max_digits=6,
         decimal_places=2, default=D("0.0"))
 
@@ -30,8 +31,8 @@ class AbstractAffiliateCount(models.Model):
     # compound index, that is started with affiliate
     affiliate = models.ForeignKey(settings.AFFILIATE_MODEL, db_index=False)
     count_views = models.IntegerField(_("Page views count"), default=0)
+    count_payments = models.IntegerField(_("Payments count"), default=0)
     ip = models.IPAddressField()
-    count_views = models.IntegerField(_("Page views count"), default=0)
     date = models.DateField(_("Date"), auto_now_add=True)
 
     class Meta:
@@ -42,3 +43,4 @@ class AbstractAffiliateCount(models.Model):
         ]
         verbose_name = _("Affiliate count")
         verbose_name_plural = _("Affiliate counts")
+        ordering = "-id",
