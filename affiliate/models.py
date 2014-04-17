@@ -9,9 +9,10 @@ from .managers import AffiliateCountManager
 class AbstractAffiliate(models.Model):
     aid = models.CharField(_("Affiliate code"), max_length=150,
         unique=True, primary_key=True)
-    total_payments_count = models.IntegerField(_("Payments count"), default=0)
-    total_payed = models.DecimalField(_("Payed to affiliate"), max_digits=6,
-        decimal_places=2, default=D("0.0"))
+    total_payments_count = models.IntegerField(_("Total payments count"),
+        default=0)
+    total_payed = models.DecimalField(_("Total payed to affiliate"),
+        max_digits=6, decimal_places=2, default=D("0.0"))
     balance = models.DecimalField(_("Affiliate balance"), max_digits=6,
         decimal_places=2, default=D("0.0"))
 

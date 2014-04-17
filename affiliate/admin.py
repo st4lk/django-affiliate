@@ -3,7 +3,7 @@ from django.contrib import admin
 
 
 class BaseAffiliateAdmin(admin.ModelAdmin):
-    list_display = "aid", "total_payments_count", "balance", "total_payed"
+    list_display = "aid", "balance", "total_payed", "total_payments_count"
 
 
 class BaseAffiliateCountAdmin(admin.ModelAdmin):

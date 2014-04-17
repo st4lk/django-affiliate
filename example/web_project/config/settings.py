@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'affiliate',
     'apps.users',
     'apps.news',
+    'apps.partner',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -181,8 +182,8 @@ USE_L10N = True
 USE_TZ = True
 
 # Affiliate required settings
-AFFILIATE_MODEL = "users.Affiliate"
-AFFILIATE_COUNT_MODEL = "users.AffiliateCount"
+AFFILIATE_MODEL = "partner.Affiliate"
+AFFILIATE_COUNT_MODEL = "partner.AffiliateCount"
 # Affiliate optional settings
 AFFILIATE_SESSION = True
 AFFILIATE_SESSION_AGE = 24 * 60 * 60  # in seconds

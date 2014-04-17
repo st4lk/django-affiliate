@@ -1,18 +1,10 @@
 # -*- coding: utf-8 -*-
-# from django.views.generic import DetailView
-# from django.views.generic import UpdateView
 from django.views.generic import CreateView
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
-# from braces.views import LoginRequiredMixin
 from .forms import UserForm
 from .models import User
-
-# from django.contrib.auth.views import login as django_login
-
-
-# def login(request, *args, **kwargs)
 
 
 class UserCreateView(CreateView):
