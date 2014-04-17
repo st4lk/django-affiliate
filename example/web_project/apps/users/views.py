@@ -26,4 +26,3 @@ class UserCreateView(CreateView):
             password=form.cleaned_data['password'])
         login(self.request, user)
         return HttpResponseRedirect(self.get_success_url())
-        # return super(UserCreateView, self).form_valid(form)

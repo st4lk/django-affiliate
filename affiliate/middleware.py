@@ -4,7 +4,9 @@ import logging
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.db.models.loading import get_model
-from .tools import get_affiliate_param_name, remove_affiliate_code
+from django.core.cache import get_cache
+from .tools import get_affiliate_param_name, remove_affiliate_code,\
+    get_seconds_day_left
 from relish.helpers.request import get_client_ip
 
 l = logging.getLogger(__name__)
@@ -19,6 +21,8 @@ AFFILIATE_COUNT_MODEL = settings.AFFILIATE_COUNT_MODEL
 
 AffiliateModel = get_model(*AFFILIATE_MODEL.split("."))
 AffiliateModelCount = get_model(*AFFILIATE_COUNT_MODEL.split("."))
+
+C_PFX = 'a_'
 
 
 class AffiliateMiddleware(object):
@@ -54,12 +58,20 @@ class AffiliateMiddleware(object):
                 and self.is_track_path(request.path):
             now = datetime.now()
             ip = get_client_ip(request)
-            nb = AffiliateModelCount.objects.incr_count_views(aid, now, ip)
+            cache = get_cache('default')
+            c_key = "".join((C_PFX, aid))
+            ip_new, aid_ip_pool = self.is_new_ip(c_key, cache, ip)
+            if ip_new:
+                aid_ip_pool.add(ip)
+                timeout = get_seconds_day_left(now)
+                cache.set(c_key, aid_ip_pool, timeout)
+            nb = AffiliateModelCount.objects.incr_count_views(aid, now,
+                ip_new=ip_new)
             if not nb:
                 try:
                     aff = AffiliateModel.objects.get(aid=aid)
                     AffiliateModelCount.objects.create(affiliate=aff,
-                        ip=ip, count_views=1)
+                        total_views=1, unique_visitors=1)
                 except AffiliateModel.DoesNotExist:
                     l.warning("Access with unknown affiliate code: {0}"
                         .format(aid))
@@ -67,3 +79,13 @@ class AffiliateMiddleware(object):
 
     def is_track_path(self, path):
         return len(filter(path.startswith, AFFILIATE_SKIP_PATH)) == 0
+
+    def is_new_ip(self, c_key, cache, ip):
+        aid_ip_pool = cache.get(c_key)
+        ip_new = True
+        if aid_ip_pool:
+            if isinstance(aid_ip_pool, set):
+                ip_new = ip not in aid_ip_pool
+        if not aid_ip_pool:
+            aid_ip_pool = set()
+        return ip_new, aid_ip_pool

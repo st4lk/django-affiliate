@@ -15,6 +15,7 @@ class AbstractAffiliate(models.Model):
         max_digits=6, decimal_places=2, default=D("0.0"))
     balance = models.DecimalField(_("Affiliate balance"), max_digits=6,
         decimal_places=2, default=D("0.0"))
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
 
     class Meta:
         abstract = True
@@ -26,19 +27,26 @@ class AbstractAffiliate(models.Model):
 
     def generate_aid(self):
         try:
-            last_aid = self.objects.order_by("-aid")[0].aid
+            last_aid = self._default_manager.order_by("-aid")[0].aid
         except IndexError:
             last_aid = "100"
         return str(int(last_aid) + 1)
+
+    @classmethod
+    def create_affiliate(cls, *args, **kwargs):
+        # Override this method to define your custom creation logic
+        raise NotImplementedError()
 
 
 class AbstractAffiliateCount(models.Model):
     # don't create additional index on fk, as we've already declared
     # compound index, that is started with affiliate
     affiliate = models.ForeignKey(settings.AFFILIATE_MODEL, db_index=False)
-    count_views = models.IntegerField(_("Page views count"), default=0)
+    unique_visitors = models.IntegerField(_("Unique visitors count"),
+        default=0)
+    total_views = models.IntegerField(_("Total page views count"),
+        default=0)
     count_payments = models.IntegerField(_("Payments count"), default=0)
-    ip = models.IPAddressField()
     date = models.DateField(_("Date"), auto_now_add=True)
 
     objects = AffiliateCountManager()
@@ -49,7 +57,7 @@ class AbstractAffiliateCount(models.Model):
         # look https://code.djangoproject.com/wiki/MultipleColumnPrimaryKeys
         # and https://code.djangoproject.com/ticket/373
         index_together = [
-            ["affiliate", "date", "ip"],
+            ["affiliate", "date"],
         ]
         verbose_name = _("Affiliate count")
         verbose_name_plural = _("Affiliate counts")

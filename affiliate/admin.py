@@ -7,4 +7,4 @@ class BaseAffiliateAdmin(admin.ModelAdmin):
 
 
 class BaseAffiliateCountAdmin(admin.ModelAdmin):
-    list_display = "affiliate", "date", "ip", "count_views", "count_payments"
+    list_display = "affiliate", "date", "total_views", "unique_visitors"
