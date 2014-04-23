@@ -5,9 +5,11 @@ from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 from relish.views.messages import SuccessMessageMixin
+from relish.decorators import instance_cache
+
+from apps.partner.models import Affiliate, AffiliateBanner
 from .forms import UserForm, CreateAffiliateForm, UpdateAffiliateForm
 from .models import User
-from apps.partner.models import Affiliate
 
 
 class UserCreateView(CreateView):
@@ -32,27 +34,19 @@ class UserCreateView(CreateView):
 
 
 class UserAffiliateView(SuccessMessageMixin, FormView):
-    model = User
     template_name = "account/affiliate.html"
 
+    @instance_cache
     def get_user(self):
-        user = getattr(self, '_user', None)
-        if user is None:
-            user = User.objects.get(pk=self.kwargs['pk'])
-            self._user = user
-        return user
+        return User.objects.get(pk=self.kwargs['pk'])
 
+    @instance_cache
     def get_affiliate(self):
-        if hasattr(self, "_affiliate"):
-            aff = self._affiliate
-        else:
-            user = self.get_user()
-            try:
-                aff = Affiliate.objects.get(user=user)
-            except Affiliate.DoesNotExist:
-                aff = None
-            self._affiliate = aff
-        return aff
+        user = self.get_user()
+        try:
+            return Affiliate.objects.get(user=user)
+        except Affiliate.DoesNotExist:
+            return None
 
     def get_form_class(self):
         affiliate = self.get_affiliate()
@@ -83,4 +77,5 @@ class UserAffiliateView(SuccessMessageMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super(UserAffiliateView, self).get_context_data(**kwargs)
         context['affiliate'] = self.get_affiliate()
+        context['banners'] = AffiliateBanner.objects.enabled()
         return context

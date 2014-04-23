@@ -15,5 +15,4 @@ urlpatterns = patterns('',
         name="home"),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^users/', include("apps.users.urls", namespace="users")),
-    url(r'^news/', include("apps.news.urls", namespace="news")),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

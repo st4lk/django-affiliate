@@ -46,7 +46,6 @@ INSTALLED_APPS = (
     'crispy_forms',
     'affiliate',
     'apps.users',
-    'apps.news',
     'apps.partner',
 )
 

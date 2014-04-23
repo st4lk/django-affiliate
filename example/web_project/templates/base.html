@@ -1,5 +1,5 @@
 {% load staticfiles i18n %}
-{% load affiliate_urls %}
+{% load affiliate_tags %}
 
 <!DOCTYPE html>
 <html lang="en" ng-app>
@@ -40,8 +40,6 @@
       <div class="container">
         <a class="navbar-brand" href="{% url_aff 'home' %}">affiliate</a>
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#">News</a></li>
-
           {% if request.user.is_authenticated %}
             <li><a href="{% url_aff 'users:affiliate' user.pk %}">{% trans "Affiliate" %}</a></li>
             <li><a href="{% url_aff 'users:logout_confirm' %}">{% trans "Logout" %}</a></li>

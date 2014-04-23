@@ -2,7 +2,8 @@
 import logging
 from django.db import models
 from django.conf import settings
-from affiliate.models import AbstractAffiliate, AbstractAffiliateCount
+from affiliate.models import AbstractAffiliate, AbstractAffiliateCount,\
+    AbstractAffiliateBanner
 
 l = logging.getLogger(__name__)
 
@@ -20,4 +21,8 @@ class Affiliate(AbstractAffiliate):
 
 
 class AffiliateCount(AbstractAffiliateCount):
+    pass
+
+
+class AffiliateBanner(AbstractAffiliateBanner):
     pass

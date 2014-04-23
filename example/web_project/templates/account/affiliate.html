@@ -1,13 +1,42 @@
 {% extends "account/affiliate_base.html" %}
 {% load i18n %}
+{% load affiliate_tags %}
 
 {% block affiliate_content %}
     {% if affiliate %}
+        <table border="1" class="aff-data">
+            <tr>
+                <td>{% trans "Your affiliate code:" %}</td>
+                <td>{{affiliate.aid}}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>{% trans "Your affiliate link:" %}</td>
+                <td>{{affiliate.render_link}}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>{% trans "Your affiliate link for website:" %}</td>
+                <td>{{affiliate.render_html_a}}</td>
+                <td></td>
+            </tr>
+            {% for banner in banners %}
+                <tr>
+                    <td>{% trans "Affiliate banner for website" %} ({{banner.image.width}}x{{banner.image.height}}):</td>
+                    <td>{% render_banner affiliate banner autoescape=True %}</td>
+                    <td>{% render_banner affiliate banner %}</td>
+                </tr>
+            {% endfor %}
+        </table>
     {% else %}
-        {% blocktrans %}Currently you don't have affiliate program. Please, create it first.{% endblocktrans %}
+        {% trans "Currently you don't have affiliate program. Please, create it first." %}
     {% endif %}
 {% endblock %}
 
 {% block submit_button %}
-    {% trans "Create affiliate" %} &raquo;
+    {% if affiliate %}
+        {% trans "Request for payment" %}
+    {% else %}
+        {% trans "Create affiliate" %} &raquo;
+    {% endif %}
 {% endblock %}
