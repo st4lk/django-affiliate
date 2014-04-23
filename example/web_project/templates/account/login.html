@@ -1,10 +1,10 @@
-{% extends "account/base.html" %}
+{% extends "base.html" %}
 {% load i18n %}
 {% load url from future %}
 {% load crispy_forms_tags %}
 {% load affiliate_urls %}
 
-{% block head_title %}{% trans "Sign In" %}{% endblock %}
+{% block title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -17,8 +17,8 @@
       <form class="login" method="POST" action=".">
         {% csrf_token %}
         {{ form|crispy }}
-        <input type="hidden" name="next" value="{% url_aff 'home' %}" />
-        <button class="btn btn-primary" type="submit">{% trans "Sign In" %}</button>
+        <input type="hidden" name="next" value="{% if 'next' in request.GET %}{{request.GET.next}}{% else %}{% url_aff 'home' %}{%endif%}" />
+        <button class="btn btn-success" type="submit">{% trans "Sign In" %}</button>
       </form>
     </div>
   </div>

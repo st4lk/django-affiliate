@@ -1,0 +1,13 @@
+{% extends "account/affiliate_base.html" %}
+{% load i18n %}
+
+{% block affiliate_content %}
+    {% if affiliate %}
+    {% else %}
+        {% blocktrans %}Currently you don't have affiliate program. Please, create it first.{% endblocktrans %}
+    {% endif %}
+{% endblock %}
+
+{% block submit_button %}
+    {% trans "Create affiliate" %} &raquo;
+{% endblock %}

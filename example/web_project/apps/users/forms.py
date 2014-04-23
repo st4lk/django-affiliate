@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from .models import User
-# from django.forms.utils import ErrorList
 from django.forms.util import ErrorList
+from django.utils.translation import ugettext_lazy as _
+from apps.partner.models import Affiliate
+from .models import User
 
 
 class UserForm(forms.ModelForm):
@@ -35,3 +36,31 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = "username", "password", "password1"
+
+
+class CreateAffiliateForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(CreateAffiliateForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        try:
+            self.user.affiliate
+            raise forms.ValidationError(_("Affiliate already created"))
+        except Affiliate.DoesNotExist:
+            pass
+        return self.cleaned_data
+
+    def save(self):
+        aff = Affiliate.create_affiliate(user=self.user)
+        return aff
+
+
+class UpdateAffiliateForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(UpdateAffiliateForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        # TODO
+        return None

@@ -40,10 +40,10 @@
       <div class="container">
         <a class="navbar-brand" href="{% url_aff 'home' %}">affiliate</a>
         <ul class="nav navbar-nav">
-          <li class="active"><a href="{% url_aff 'home' %}">Home</a></li>
           <li class="active"><a href="#">News</a></li>
 
           {% if request.user.is_authenticated %}
+            <li><a href="{% url_aff 'users:affiliate' user.pk %}">{% trans "Affiliate" %}</a></li>
             <li><a href="{% url_aff 'users:logout_confirm' %}">{% trans "Logout" %}</a></li>
           {% else %}
             <li><a href="{% url_aff 'users:login' %}">{% trans "Sign In" %}</a></li>
@@ -54,12 +54,15 @@
     </div>
 
     <div class="container">
-        
-      {% if messages %}
+
+      {% block messages %}
           {% for message in messages %}
-              <div class="alert {% if message.tags %}alert-{{ message.tags }}"{% endif %}>{{ message }}</div>
+              <div class="alert alert-dismissable fade in alert-{{ message.tags }}">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                  <p>{{message}}</p>
+              </div>
           {% endfor %}
-      {% endif %}
+      {% endblock messages %}
 
       {% block content %}
         <p>Use this document as a way to quick start any new project.</p>

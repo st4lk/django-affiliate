@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% load url from future %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load affiliate_urls %}
+
+{% block title %}{% trans "Affiliate program" %}{% endblock title %}
+
+{% block content %}
+<h1>{% trans "Affiliate program" %}</h1>
+
+<div class="affiliate-content">
+    {% block affiliate_content %}
+    {% endblock %}
+</div>
+
+<form class="signup" id="signup_form" method="post" action=".">
+  {% csrf_token %}
+  {{ form|crispy }}
+  <button class="btn btn-success" type="submit">
+    {% block submit_button %}{% endblock %}
+  </button>
+</form>
+
+
+{% endblock content %}
+
+

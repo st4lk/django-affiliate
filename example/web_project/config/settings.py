@@ -148,6 +148,7 @@ AUTHENTICATION_BACKENDS = (
 # Select the correct user model
 AUTH_USER_MODEL = "users.User"
 LOGIN_REDIRECT_URL = "home"
+LOGIN_URL = "/users/signin/"
 ########## END Custom user app defaults
 
 ########## SLUGLIFIER
