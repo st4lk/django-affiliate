@@ -188,6 +188,8 @@ AFFILIATE_COUNT_MODEL = "partner.AffiliateCount"
 AFFILIATE_SESSION = True
 AFFILIATE_SESSION_AGE = 24 * 60 * 60  # in seconds
 AFFILIATE_SKIP_PATH_STARTS = ['/admin/']
+AFFILIATE_START_AID = "100"
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',

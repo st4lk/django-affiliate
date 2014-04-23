@@ -5,6 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from .managers import AffiliateCountManager
 
+START_AID = getattr(settings, 'AFFILIATE_START_AID', "100")
+
 
 class AbstractAffiliate(models.Model):
     aid = models.CharField(_("Affiliate code"), max_length=150,
@@ -29,7 +31,7 @@ class AbstractAffiliate(models.Model):
         try:
             last_aid = self._default_manager.order_by("-aid")[0].aid
         except IndexError:
-            last_aid = "100"
+            last_aid = START_AID
         return str(int(last_aid) + 1)
 
     @classmethod
@@ -56,7 +58,7 @@ class AbstractAffiliateCount(models.Model):
         # TODO would be great to have following fields as compound primary key
         # look https://code.djangoproject.com/wiki/MultipleColumnPrimaryKeys
         # and https://code.djangoproject.com/ticket/373
-        index_together = [
+        unique_together = [
             ["affiliate", "date"],
         ]
         verbose_name = _("Affiliate count")
