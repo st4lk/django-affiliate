@@ -38,10 +38,10 @@
 
     <div class="header navbar">
       <div class="container">
-        <a class="navbar-brand" href="{% url_aff 'home' %}">affiliate</a>
+        <a class="navbar-brand" href="{% url_aff 'home' %}">{% trans "Affiliate system" %}</a>
         <ul class="nav navbar-nav">
           {% if request.user.is_authenticated %}
-            <li><a href="{% url_aff 'users:affiliate' %}">{% trans "Affiliate" %}</a></li>
+            <li><a href="{% url_aff 'users:affiliate' %}">{% trans "Partner account" %}</a></li>
             <li><a href="{% url_aff 'users:logout_confirm' %}">{% trans "Logout" %}</a></li>
           {% else %}
             <li><a href="{% url_aff 'users:login' %}">{% trans "Sign In" %}</a></li>
