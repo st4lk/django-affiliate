@@ -87,6 +87,7 @@ class UserAffiliateView(SuccessMessageMixin, FormView):
         context['affiliate'] = self.affiliate
         context['min_request_amount'] = MIN_REQUEST_AMOUNT
         context['currency_label'] = Affiliate.get_currency()
+        context['pay_requests'] = self.affiliate.pay_requests.all()
         if self.affiliate:
             context['requested'] = self.affiliate.pay_requests.pending()
             context['avaliable_for_request'] = self.affiliate.balance >= MIN_REQUEST_AMOUNT

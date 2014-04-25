@@ -52,6 +52,30 @@
                 <td>{{ affiliate.total_payments_count }}</td>
             </tr>
         </table>
+
+        <h3>{% trans "Your withdraw transactions" %}</h3>
+        {% if pay_requests %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <td>{% trans "Amount" %}, {{ currency_label }}</td>
+                        <td>{% trans "Status" %}, {{ currency_label }}</td>
+                        <td>{% trans "Created at" %}</td>
+                        <td>{% trans "Payed at" %}</td>
+                    </tr>
+                </thead>
+                {% for pay_request in pay_requests %}
+                    <tr class="{% if pay_request.is_done %}success{% else %}warning{% endif %}">
+                        <td>{{ pay_request.amount }}</td>
+                        <td>{{ pay_request.get_status_display }}</td>
+                        <td>{{ pay_request.created_at }}</td>
+                        <td>{{ pay_request.payed_at }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <div>{% trans "There are no payment requests made yet" %}</div>
+        {% endif %}
     {% else %}
         {% trans "Currently you don't have affiliate program. Please, create it first." %}
     {% endif %}
