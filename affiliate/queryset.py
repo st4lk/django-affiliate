@@ -12,6 +12,11 @@ class AffiliateCountQuerySet(QuerySet):
         return self.filter(affiliate=aid, date=date).update(**kw)
 
 
+class PaymentRequestQuerySet(QuerySet):
+    def pending(self):
+        return self.filter(status=self.model.PAY_STATUS.pending)
+
+
 class AffiliateBannerQuerySet(QuerySet):
 
     def enabled(self):

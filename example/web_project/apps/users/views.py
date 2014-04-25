@@ -4,12 +4,16 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 from relish.views.messages import SuccessMessageMixin
 from relish.decorators import instance_cache
 
 from apps.partner.models import Affiliate, AffiliateBanner
-from .forms import UserForm, CreateAffiliateForm, UpdateAffiliateForm
+from .forms import UserForm, CreateAffiliateForm, AffiliatePaymentRequestForm
 from .models import User
+
+
+MIN_REQUEST_AMOUNT = getattr(settings, 'AFFILIATE_MIN_BALANCE_FOR_REQUEST', 0)
 
 
 class UserCreateView(CreateView):
@@ -36,37 +40,41 @@ class UserCreateView(CreateView):
 class UserAffiliateView(SuccessMessageMixin, FormView):
     template_name = "account/affiliate.html"
 
+    @property
     @instance_cache
-    def get_user(self):
-        return User.objects.get(pk=self.kwargs['pk'])
+    def user(self):
+        return self.request.user
 
+    @property
     @instance_cache
-    def get_affiliate(self):
-        user = self.get_user()
+    def affiliate(self):
         try:
-            return Affiliate.objects.get(user=user)
+            return Affiliate.objects.get(user=self.user)
         except Affiliate.DoesNotExist:
             return None
 
     def get_form_class(self):
-        affiliate = self.get_affiliate()
-        if affiliate:
-            form_class = UpdateAffiliateForm
+        if self.affiliate:
+            form_class = AffiliatePaymentRequestForm
         else:
             form_class = CreateAffiliateForm
         return form_class
 
     def get_form_kwargs(self):
         kwargs = super(UserAffiliateView, self).get_form_kwargs()
-        kwargs['user'] = self.get_user()
+        affiliate = self.affiliate
+        if affiliate:
+            kwargs['affiliate'] = affiliate
+        else:
+            kwargs['user'] = self.user
         return kwargs
 
     def get_success_url(self):
         return self.request.get_full_path()
 
     def get_success_message(self):
-        if self.get_affiliate():
-            return _("TOOD")
+        if self.affiliate:
+            return _("Request for payment was sent")
         else:
             return _("Affiliate successfully created")
 
@@ -76,6 +84,10 @@ class UserAffiliateView(SuccessMessageMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(UserAffiliateView, self).get_context_data(**kwargs)
-        context['affiliate'] = self.get_affiliate()
-        context['banners'] = AffiliateBanner.objects.enabled()
+        context['affiliate'] = self.affiliate
+        context['min_request_amount'] = MIN_REQUEST_AMOUNT
+        context['currency_label'] = Affiliate.get_currency()
+        if self.affiliate:
+            context['requested'] = self.affiliate.pay_requests.pending()
+            context['avaliable_for_request'] = self.affiliate.balance >= MIN_REQUEST_AMOUNT
         return context

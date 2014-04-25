@@ -4,29 +4,53 @@
 
 {% block affiliate_content %}
     {% if affiliate %}
-        <table border="1" class="aff-data">
+        <h3>{% trans "Your code" %}</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <td>{% trans "Title" %}</td>
+                    <td>{% trans "Code" %}</td>
+                    <td>{% trans "Example" %}</td>
+                </tr>
+            </thead>
             <tr>
-                <td>{% trans "Your affiliate code:" %}</td>
+                <td>{% trans "Affiliate code" %}</td>
                 <td>{{affiliate.aid}}</td>
                 <td></td>
             </tr>
             <tr>
-                <td>{% trans "Your affiliate link:" %}</td>
+                <td>{% trans "Affiliate link" %}</td>
                 <td>{{affiliate.render_link}}</td>
                 <td></td>
             </tr>
             <tr>
-                <td>{% trans "Your affiliate link for website:" %}</td>
+                <td>{% trans "Affiliate link for website" %}</td>
                 <td>{{affiliate.render_html_a}}</td>
-                <td></td>
+                <td>{{affiliate.render_html_a|safe}}</td>
             </tr>
             {% for banner in banners %}
                 <tr>
-                    <td>{% trans "Affiliate banner for website" %} ({{banner.image.width}}x{{banner.image.height}}):</td>
+                    <td>{% trans "Affiliate banner for website" %} ({{banner.image.width}}x{{banner.image.height}})</td>
                     <td>{% render_banner affiliate banner autoescape=True %}</td>
                     <td>{% render_banner affiliate banner %}</td>
                 </tr>
             {% endfor %}
+        </table>
+
+        <h3>{% trans "Your stats" %}</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <td>{% trans "Current balance" %}, {{ currency_label }}</td>
+                    <td>{% trans "Payed to you" %}, {{ currency_label }}</td>
+                    <td>{% trans "Number of payments made by your affiliates" %}</td>
+                </tr>
+            </thead>
+            <tr>
+                <td>{{ affiliate.balance }}</td>
+                <td>{{ affiliate.total_payed }}</td>
+                <td>{{ affiliate.total_payments_count }}</td>
+            </tr>
         </table>
     {% else %}
         {% trans "Currently you don't have affiliate program. Please, create it first." %}
@@ -35,8 +59,23 @@
 
 {% block submit_button %}
     {% if affiliate %}
-        {% trans "Request for payment" %}
+        {% if requested %}
+            <button class="btn btn-warning" type="submit" disabled="disabled">
+                {% trans "Payment request already sent (pending)" %}
+            </button>
+        {% elif avaliable_for_request %}
+            <button class="btn btn-success" type="submit">
+                {% trans "Request for payment" %}
+            </button>
+        {% else %}
+            <div>{% blocktrans with amount=min_request_amount %}You need minimum {{ amount }} {{currency_label }} in your balance to make a payment request{% endblocktrans %}</div>
+            <button class="btn btn-default" type="submit"  disabled="disabled">
+                {% trans "Balance is too low for payment request" %}
+            </button>
+        {% endif %}
     {% else %}
-        {% trans "Create affiliate" %} &raquo;
+        <button class="btn btn-success" type="submit">
+            {% trans "Create affiliate" %} &raquo;
+        </button>
     {% endif %}
 {% endblock %}

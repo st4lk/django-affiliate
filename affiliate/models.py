@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
 from decimal import Decimal as D
+from django.utils.timezone import now
 from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import get_current_site
+from model_utils import Choices
 from relish.decorators import instance_cache
-from .managers import AffiliateCountManager, AffiliateBannerManager
+from .managers import AffiliateCountManager, AffiliateBannerManager,\
+    PaymentRequestManager
 from .tools import get_affiliate_param_name
 
 START_AID = getattr(settings, 'AFFILIATE_START_AID', "100")
 AID_NAME = get_affiliate_param_name()
 BANNER_FOLDER = getattr(settings, 'AFFILIATE_BANNER_PATH', 'affiliate')
+
+
+class NotEnoughMoneyError(Exception):
+    pass
 
 
 class AbstractAffiliate(models.Model):
@@ -61,16 +68,32 @@ class AbstractAffiliate(models.Model):
     def get_site(self, request=None):
         return get_current_site(request)
 
+    def create_payment_request(self):
+        payreq_model = self.pay_requests.model
+        payreq_model(affiliate=self, amount=self.balance).save()
+
+    def payed_to_affiliate(self, value):
+        if self.balance < value:
+            raise NotEnoughMoneyError()
+        self.balance -= value
+        self.total_payed += value
+
     @classmethod
     def create_affiliate(cls, *args, **kwargs):
         # Override this method to define your custom creation logic
         raise NotImplementedError()
 
+    @classmethod
+    def get_currency(cls):
+        # Override this method to define you currency label
+        return _("USD")
+
 
 class AbstractAffiliateCount(models.Model):
     # don't create additional index on fk, as we've already declared
     # compound index, that is started with affiliate
-    affiliate = models.ForeignKey(settings.AFFILIATE_MODEL, db_index=False)
+    affiliate = models.ForeignKey(settings.AFFILIATE_MODEL, db_index=False,
+        verbose_name=_("Affiliate"), related_name='counts')
     unique_visitors = models.IntegerField(_("Unique visitors count"),
         default=0)
     total_views = models.IntegerField(_("Total page views count"),
@@ -111,3 +134,41 @@ class AbstractAffiliateBanner(models.Model):
         abstract = True
         verbose_name = _("Affiliate banner")
         verbose_name_plural = _("Affiliate banners")
+
+
+class AbstractPaymentRequest(models.Model):
+    PAY_STATUS = Choices(
+        ('pending', _("Pending")),
+        ('error', _("Error")),
+        ('done', _("Done")),
+    )
+
+    affiliate = models.ForeignKey(settings.AFFILIATE_MODEL,
+        verbose_name=_("Affiliate"), related_name='pay_requests')
+    status = models.CharField(_("Status"), max_length=10,
+        choices=PAY_STATUS, default=PAY_STATUS.pending)
+    amount = models.DecimalField(_("Payed to affiliate"),
+        max_digits=6, decimal_places=2, default=D("0.0"))
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    payed_at = models.DateTimeField(_("Payed at"), null=True, blank=True)
+
+    objects = PaymentRequestManager()
+
+    class Meta:
+        abstract = True
+        verbose_name = _("Payment request")
+        verbose_name_plural = _("Payment requests")
+
+    def __unicode__(self):
+        return u"{0} {1}".format(self.affiliate, self.status)
+
+    def mark_done(self, save=True):
+        self.status = self.PAY_STATUS.done
+        if save:
+            self.save()
+
+    def payment_made(self):
+        self.affiliate.payed_to_affiliate(self.amount)
+        self.affiliate.save()
+        self.payed_at = now()
+        self.mark_done()

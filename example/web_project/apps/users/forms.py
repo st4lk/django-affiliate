@@ -56,11 +56,17 @@ class CreateAffiliateForm(forms.Form):
         return aff
 
 
-class UpdateAffiliateForm(forms.Form):
+class AffiliatePaymentRequestForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super(UpdateAffiliateForm, self).__init__(*args, **kwargs)
+        self.affiliate = kwargs.pop('affiliate', None)
+        super(AffiliatePaymentRequestForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        if self.affiliate is None:
+            raise forms.ValidationError(_("Affiliate not found"))
+        if self.affiliate.pay_requests.pending().exists():
+            raise forms.ValidationError(_("Request is already sent"))
+        return self.cleaned_data
 
     def save(self):
-        # TODO
-        return None
+        return self.affiliate.create_payment_request()

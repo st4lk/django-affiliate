@@ -14,6 +14,6 @@ urlpatterns = patterns('',
         TemplateView.as_view(template_name='account/logout.html'),
         name="logout_confirm"),
     url(r'^logout/$', logout, name='logout'),
-    url(r'^(?P<pk>[0-9]+)/affiliate/$',
+    url(r'^affiliate/$',
         login_required(views.UserAffiliateView.as_view()), name='affiliate'),
 )
