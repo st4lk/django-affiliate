@@ -11,8 +11,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', TemplateView.as_view(template_name='pages/home.html'),
-        name="home"),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^users/', include("apps.users.urls", namespace="users")),
+    url(r'^$', include("apps.products.urls", namespace="products")),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

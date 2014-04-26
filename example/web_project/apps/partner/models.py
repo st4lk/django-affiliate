@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+from decimal import Decimal as D
 from django.db import models
 from django.conf import settings
 from affiliate.models import AbstractAffiliate, AbstractAffiliateCount,\
@@ -18,6 +19,11 @@ class Affiliate(AbstractAffiliate):
         l.info("Creating affiliate #{0} for user {1}"
             .format(aff.aid, user))
         aff.save()
+
+    def reward_affiliate(self, product_price):
+        self.total_payments_count += 1
+        self.balance += product_price * D("0.01")
+        self.save()
 
 
 class AffiliateCount(AbstractAffiliateCount):

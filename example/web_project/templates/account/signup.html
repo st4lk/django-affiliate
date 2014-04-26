@@ -13,7 +13,7 @@
 <form class="signup" id="signup_form" method="post" action=".">
   {% csrf_token %}
   {{ form|crispy }}
-  <input type="hidden" name="next" value="{% url_aff 'home' %}" />
+  <input type="hidden" name="next" value="{% url_aff 'products:list' %}" />
   <button class="btn btn-success" type="submit">{% trans "Sign Up" %} &raquo;</button>
 </form>
 

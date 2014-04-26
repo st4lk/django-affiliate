@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'affiliate',
     'apps.users',
     'apps.partner',
+    'apps.products',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -93,6 +94,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.request',
+    'apps.partner.context_processors.common',
     'affiliate.context_processors.common',
 )
 
@@ -190,6 +192,9 @@ AFFILIATE_SESSION_AGE = 24 * 60 * 60  # in seconds
 AFFILIATE_SKIP_PATH_STARTS = ['/admin/']
 AFFILIATE_START_AID = "100"
 AFFILIATE_MIN_BALANCE_FOR_REQUEST = 1.0
+
+DEFAULT_CURRENCY = "USD"
+DEFAULT_IMAGE = STATIC_URL + 'images/no-image.png'
 
 CACHES = {
     'default': {

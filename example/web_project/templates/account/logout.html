@@ -16,7 +16,7 @@
 
         <form method="post" action="{% url_aff 'users:logout' %}">
           {% csrf_token %}
-          <input type="hidden" name="next" value="{% url_aff 'home' %}"/>
+          <input type="hidden" name="next" value="{% url_aff 'products:list' %}"/>
           <button class="btn btn-danger" type="submit">{% trans 'Logout' %}</button>
         </form>
     </div>

@@ -23,11 +23,11 @@ class NotEnoughMoneyError(Exception):
 class AbstractAffiliate(models.Model):
     aid = models.CharField(_("Affiliate code"), max_length=150,
         unique=True, primary_key=True)
-    total_payments_count = models.IntegerField(_("Total payments count"),
+    total_payments_count = models.IntegerField(_("Attracted payments count"),
         default=0)
     total_payed = models.DecimalField(_("Total payed to affiliate"),
         max_digits=6, decimal_places=2, default=D("0.0"))
-    balance = models.DecimalField(_("Affiliate balance"), max_digits=6,
+    balance = models.DecimalField(_("Current balance"), max_digits=6,
         decimal_places=2, default=D("0.0"))
     created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
 
@@ -78,6 +78,9 @@ class AbstractAffiliate(models.Model):
         self.balance -= value
         self.total_payed += value
 
+    def add_partner_award(self, product_price):
+        raise NotImplementedError()
+
     @classmethod
     def create_affiliate(cls, *args, **kwargs):
         # Override this method to define your custom creation logic
@@ -86,7 +89,7 @@ class AbstractAffiliate(models.Model):
     @classmethod
     def get_currency(cls):
         # Override this method to define you currency label
-        return _("USD")
+        return settings.DEFAULT_CURRENCY
 
 
 class AbstractAffiliateCount(models.Model):
@@ -139,8 +142,8 @@ class AbstractAffiliateBanner(models.Model):
 class AbstractPaymentRequest(models.Model):
     PAY_STATUS = Choices(
         ('pending', _("Pending")),
-        ('error', _("Error")),
         ('done', _("Done")),
+        ('error', _("Error")),
     )
 
     affiliate = models.ForeignKey(settings.AFFILIATE_MODEL,
@@ -156,6 +159,7 @@ class AbstractPaymentRequest(models.Model):
 
     class Meta:
         abstract = True
+        ordering = "-status", "-payed_at"
         verbose_name = _("Payment request")
         verbose_name_plural = _("Payment requests")
 
@@ -172,3 +176,6 @@ class AbstractPaymentRequest(models.Model):
         self.affiliate.save()
         self.payed_at = now()
         self.mark_done()
+
+    def is_done(self):
+        return self.status == self.PAY_STATUS.done

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Products" %}{% endblock title %}
+
+{% block content %}
+    <h1>{% trans "Products" %}</h1>
+    <div>Here is a list of example products. System rewards an affiliate, if his visitor will buy a product.</div>
+
+    <form action="." method="POST">
+        {% csrf_token %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <td>{% trans "Image" %}</td>
+                    <td>{% trans "Title" %}</td>
+                    <td>{% trans "Description" %}</td>
+                    <td>{% trans "Price" %}</td>
+                    <td>{% trans "Action" %}</td>
+                </tr>
+            </thead>
+            {% for product in products %}
+                <tr>
+                    <td><img src="{{ product.get_image_url }}" alt="{{ product.title }}" class="img-rounded"></td>
+                    <td>{{ product.title }}</td>
+                    <td>{{ product.description }}</td>
+                    <td>{{ product.price }} {{ default_currency }}</td>
+                    <td><input type="submit" class="btn btn-success" name="product_{{product.pk}}", value="Buy"/></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </form>
+{% endblock content %}

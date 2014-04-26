@@ -38,7 +38,7 @@
 
     <div class="header navbar">
       <div class="container">
-        <a class="navbar-brand" href="{% url_aff 'home' %}">{% trans "Affiliate system" %}</a>
+        <a class="navbar-brand" href="{% url_aff 'products:list' %}">{% trans "Affiliate system" %}</a>
         <ul class="nav navbar-nav">
           {% if request.user.is_authenticated %}
             <li><a href="{% url_aff 'users:affiliate' %}">{% trans "Partner account" %}</a></li>
