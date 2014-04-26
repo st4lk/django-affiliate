@@ -10,12 +10,14 @@ from relish.decorators import instance_cache
 from .managers import AffiliateCountManager, AffiliateBannerManager,\
     PaymentRequestManager
 from .tools import get_affiliate_param_name
+from .signals import affiliate_post_withdraw, affiliate_post_reward
 
 START_AID = getattr(settings, 'AFFILIATE_START_AID', "100")
 AID_NAME = get_affiliate_param_name()
 BANNER_FOLDER = getattr(settings, 'AFFILIATE_BANNER_PATH', 'affiliate')
 REWARD_AMOUNT = getattr(settings, 'AFFILIATE_REWARD_AMOUNT', D('0.01'))
 REWARD_PERCENTAGE = getattr(settings, 'AFFILIATE_REWARD_PERCENTAGE', True)
+TWOPLACES = D('0.01')
 
 
 class NotEnoughMoneyError(Exception):
@@ -138,6 +140,7 @@ class AbstractAffiliate(models.Model):
         self.total_payments_amount += purchase_total_price
         if self.reward_percentage:
             reward = purchase_total_price * self.reward_amount
+            reward = self.quantize_amount(reward)
         else:
             reward = self.reward_amount
         self.balance += reward
@@ -145,6 +148,11 @@ class AbstractAffiliate(models.Model):
             self.save()
         aff_count = self.get_affiliate_count()
         aff_count.incr_payments(purchase_total_price, reward)
+        affiliate_post_reward.send(sender=None, affiliate=self, reward=reward)
+
+    @staticmethod
+    def quantize_amount(amount):
+        return amount.quantize(TWOPLACES)
 
     def get_affiliate_count(self):
         try:
@@ -217,6 +225,7 @@ class AbstractPaymentRequest(models.Model):
         self.affiliate.save()
         self.payed_at = now()
         self.mark_done()
+        affiliate_post_withdraw.send(sender=None, payment_request=self)
 
     def is_done(self):
         return self.status == self.PAY_STATUS.done

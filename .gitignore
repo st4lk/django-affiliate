@@ -17,3 +17,5 @@ settings_local.py
 initial_data.json
 example/web_project/media/*
 !example/web_project/media/.gitkeep
+example/debug/emails/*
+!example/debug/emails/.gitkeep

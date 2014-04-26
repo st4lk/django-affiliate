@@ -159,7 +159,10 @@ AUTOSLUG_SLUGIFY_FUNCTION = "slugify.slugify"
 ########## Mail settings
 EMAIL_HOST = "localhost"
 EMAIL_PORT = 1025
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, '../debug/emails')
+SITE_EMAIL = 'no-reply@affiliate.com'
+
 ########## End mail settings
 
 # Internationalization

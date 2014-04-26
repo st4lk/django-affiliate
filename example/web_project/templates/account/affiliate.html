@@ -62,6 +62,7 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
+                        <td>{% trans "ID" %}</td>
                         <td>{% trans "Amount" %}, {{ currency_label }}</td>
                         <td>{% trans "Status" %}, {{ currency_label }}</td>
                         <td>{% trans "Created at" %}</td>
@@ -70,6 +71,7 @@
                 </thead>
                 {% for pay_request in pay_requests %}
                     <tr class="{% if pay_request.is_done %}success{% else %}warning{% endif %}">
+                        <td>{{ pay_request.pk }}</td>
                         <td>{{ pay_request.amount }}</td>
                         <td>{{ pay_request.get_status_display }}</td>
                         <td>{{ pay_request.created_at }}</td>
