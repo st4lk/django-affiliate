@@ -14,22 +14,72 @@ from .tools import get_affiliate_param_name
 START_AID = getattr(settings, 'AFFILIATE_START_AID', "100")
 AID_NAME = get_affiliate_param_name()
 BANNER_FOLDER = getattr(settings, 'AFFILIATE_BANNER_PATH', 'affiliate')
+REWARD_AMOUNT = getattr(settings, 'AFFILIATE_REWARD_AMOUNT', D('0.01'))
+REWARD_PERCENTAGE = getattr(settings, 'AFFILIATE_REWARD_PERCENTAGE', True)
 
 
 class NotEnoughMoneyError(Exception):
     pass
 
 
+class AbstractAffiliateCount(models.Model):
+    # don't create additional index on fk, as we've already declared
+    # compound index, that is started with affiliate
+    affiliate = models.ForeignKey(settings.AFFILIATE_MODEL, db_index=False,
+        verbose_name=_("Affiliate"), related_name='counts')
+    unique_visitors = models.IntegerField(_("Unique visitors count"),
+        default=0)
+    total_views = models.IntegerField(_("Total page views count"),
+        default=0)
+    payments_count = models.IntegerField(_("Payments count"), default=0)
+    payments_amount = models.DecimalField(_("Attracted payments amount"),
+        max_digits=6, decimal_places=2, default=D("0.0"))
+    rewards_amount = models.DecimalField(_("Rewards amount"), max_digits=6,
+        decimal_places=2, default=D("0.0"))
+    date = models.DateField(_("Date"), auto_now_add=True)
+
+    objects = AffiliateCountManager()
+
+    def __unicode__(self):
+        return u"{0}, {1}".format(self.affiliate_id, self.date)
+
+    class Meta:
+        abstract = True
+        # TODO would be great to have following fields as compound primary key
+        # look https://code.djangoproject.com/wiki/MultipleColumnPrimaryKeys
+        # and https://code.djangoproject.com/ticket/373
+        unique_together = [
+            ["affiliate", "date"],
+        ]
+        verbose_name = _("Affiliate count")
+        verbose_name_plural = _("Affiliate counts")
+        ordering = "-id",
+
+    def incr_payments(self, purchase_total_price, reward, commit=True):
+        self.payments_count += 1
+        self.payments_amount += purchase_total_price
+        self.rewards_amount += reward
+        if commit:
+            self.save()
+
+
 class AbstractAffiliate(models.Model):
     aid = models.CharField(_("Affiliate code"), max_length=150,
         unique=True, primary_key=True)
-    total_payments_count = models.IntegerField(_("Attracted payments count"),
-        default=0)
+    total_payments_count = models.IntegerField(
+        _("Total attracted payments count"), default=0)
+    total_payments_amount = models.DecimalField(
+        _("Total attracted payments amount"), max_digits=6, decimal_places=2,
+        default=D("0.0"))
     total_payed = models.DecimalField(_("Total payed to affiliate"),
         max_digits=6, decimal_places=2, default=D("0.0"))
     balance = models.DecimalField(_("Current balance"), max_digits=6,
         decimal_places=2, default=D("0.0"))
     created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+    reward_amount = models.DecimalField(_("Reward amount"), max_digits=5,
+        decimal_places=2, default=REWARD_AMOUNT)
+    reward_percentage = models.BooleanField(_('Percentage discount'),
+        default=REWARD_PERCENTAGE)
 
     class Meta:
         abstract = True
@@ -78,8 +128,29 @@ class AbstractAffiliate(models.Model):
         self.balance -= value
         self.total_payed += value
 
-    def add_partner_award(self, product_price):
-        raise NotImplementedError()
+    def reward_affiliate(self, purchase_total_price, commit=True):
+        """
+        Rewards affiliate by incrementing its balance.
+        :arg purchase_total_price: equals to total price of bought products
+        :arg commit: if True, then commit changes to database, by calling save
+        """
+        self.total_payments_count += 1
+        self.total_payments_amount += purchase_total_price
+        if self.reward_percentage:
+            reward = purchase_total_price * self.reward_amount
+        else:
+            reward = self.reward_amount
+        self.balance += reward
+        if commit:
+            self.save()
+        aff_count = self.get_affiliate_count()
+        aff_count.incr_payments(purchase_total_price, reward)
+
+    def get_affiliate_count(self):
+        try:
+            return self.counts.order_by("-date")[0]
+        except IndexError:
+            return self.counts.model(affiliate=self)
 
     @classmethod
     def create_affiliate(cls, *args, **kwargs):
@@ -90,36 +161,6 @@ class AbstractAffiliate(models.Model):
     def get_currency(cls):
         # Override this method to define you currency label
         return settings.DEFAULT_CURRENCY
-
-
-class AbstractAffiliateCount(models.Model):
-    # don't create additional index on fk, as we've already declared
-    # compound index, that is started with affiliate
-    affiliate = models.ForeignKey(settings.AFFILIATE_MODEL, db_index=False,
-        verbose_name=_("Affiliate"), related_name='counts')
-    unique_visitors = models.IntegerField(_("Unique visitors count"),
-        default=0)
-    total_views = models.IntegerField(_("Total page views count"),
-        default=0)
-    count_payments = models.IntegerField(_("Payments count"), default=0)
-    date = models.DateField(_("Date"), auto_now_add=True)
-
-    objects = AffiliateCountManager()
-
-    def __unicode__(self):
-        return u"{0}, {1}".format(self.affiliate_id, self.date)
-
-    class Meta:
-        abstract = True
-        # TODO would be great to have following fields as compound primary key
-        # look https://code.djangoproject.com/wiki/MultipleColumnPrimaryKeys
-        # and https://code.djangoproject.com/ticket/373
-        unique_together = [
-            ["affiliate", "date"],
-        ]
-        verbose_name = _("Affiliate count")
-        verbose_name_plural = _("Affiliate counts")
-        ordering = "-id",
 
 
 class AbstractAffiliateBanner(models.Model):
@@ -166,9 +207,9 @@ class AbstractPaymentRequest(models.Model):
     def __unicode__(self):
         return u"{0} {1}".format(self.affiliate, self.status)
 
-    def mark_done(self, save=True):
+    def mark_done(self, commit=True):
         self.status = self.PAY_STATUS.done
-        if save:
+        if commit:
             self.save()
 
     def payment_made(self):
