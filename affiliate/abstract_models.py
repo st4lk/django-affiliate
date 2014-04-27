@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import get_current_site
 from model_utils import Choices
 from relish.decorators import instance_cache
-from .managers import AffiliateCountManager, AffiliateBannerManager,\
+from .managers import AffiliateStatsManager, AffiliateBannerManager,\
     PaymentRequestManager
 from .tools import get_affiliate_param_name
 from .signals import affiliate_post_withdraw, affiliate_post_reward
@@ -24,11 +24,11 @@ class NotEnoughMoneyError(Exception):
     pass
 
 
-class AbstractAffiliateCount(models.Model):
+class AbstractAffiliateStats(models.Model):
     # don't create additional index on fk, as we've already declared
     # compound index, that is started with affiliate
     affiliate = models.ForeignKey(settings.AFFILIATE_MODEL, db_index=False,
-        verbose_name=_("Affiliate"), related_name='counts')
+        verbose_name=_("Affiliate"), related_name='stats')
     unique_visitors = models.IntegerField(_("Unique visitors count"),
         default=0)
     total_views = models.IntegerField(_("Total page views count"),
@@ -40,7 +40,7 @@ class AbstractAffiliateCount(models.Model):
         decimal_places=2, default=D("0.0"))
     date = models.DateField(_("Date"), auto_now_add=True)
 
-    objects = AffiliateCountManager()
+    objects = AffiliateStatsManager()
 
     def __unicode__(self):
         return u"{0}, {1}".format(self.affiliate_id, self.date)
@@ -50,11 +50,11 @@ class AbstractAffiliateCount(models.Model):
         # TODO would be great to have following fields as compound primary key
         # look https://code.djangoproject.com/wiki/MultipleColumnPrimaryKeys
         # and https://code.djangoproject.com/ticket/373
-        unique_together = [
-            ["affiliate", "date"],
-        ]
-        verbose_name = _("Affiliate count")
-        verbose_name_plural = _("Affiliate counts")
+        unique_together = (
+            ("affiliate", "date"),
+        )
+        verbose_name = _("Affiliate statistic")
+        verbose_name_plural = _("Affiliate statisticsp")
         ordering = "-id",
 
     def incr_payments(self, purchase_total_price, reward, commit=True):
@@ -156,9 +156,9 @@ class AbstractAffiliate(models.Model):
 
     def get_affiliate_count(self):
         try:
-            return self.counts.order_by("-date")[0]
+            return self.stats.order_by("-date")[0]
         except IndexError:
-            return self.counts.model(affiliate=self)
+            return self.stats.model(affiliate=self)
 
     @classmethod
     def create_affiliate(cls, *args, **kwargs):

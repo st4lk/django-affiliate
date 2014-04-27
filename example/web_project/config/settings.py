@@ -188,7 +188,7 @@ USE_TZ = True
 
 # Affiliate required settings
 AFFILIATE_MODEL = "partner.Affiliate"
-AFFILIATE_COUNT_MODEL = "partner.AffiliateCount"
+AFFILIATE_COUNT_MODEL = "partner.AffiliateStats"
 # Affiliate optional settings
 AFFILIATE_SESSION = True
 AFFILIATE_SESSION_AGE = 24 * 60 * 60  # in seconds

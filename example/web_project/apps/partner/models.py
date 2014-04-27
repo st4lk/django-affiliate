@@ -4,8 +4,8 @@ from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
 from django.core.mail import send_mail
-from affiliate.abstract_models import AbstractAffiliate, AbstractAffiliateCount,\
-    AbstractAffiliateBanner, AbstractPaymentRequest
+from affiliate.abstract_models import AbstractAffiliate,\
+    AbstractAffiliateStats, AbstractAffiliateBanner, AbstractPaymentRequest
 from affiliate.signals import affiliate_post_reward, affiliate_post_withdraw
 
 l = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class Affiliate(AbstractAffiliate):
         aff.save()
 
 
-class AffiliateCount(AbstractAffiliateCount):
+class AffiliateStats(AbstractAffiliateStats):
     pass
 
 

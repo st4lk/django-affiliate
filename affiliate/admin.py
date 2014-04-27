@@ -3,14 +3,14 @@ from django.contrib import admin, messages
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.util import unquote
 from django.http import HttpResponseRedirect
-from .models import NotEnoughMoneyError
+from .abstract_models import NotEnoughMoneyError
 
 
 class BaseAffiliateAdmin(admin.ModelAdmin):
     list_display = "aid", "balance", "total_payed", "total_payments_count"
 
 
-class BaseAffiliateCountAdmin(admin.ModelAdmin):
+class BaseAffiliateStatsAdmin(admin.ModelAdmin):
     list_display = ("affiliate", "date", "total_views", "unique_visitors",
         "payments_count", "payments_amount", "rewards_amount")
 

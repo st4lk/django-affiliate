@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from affiliate.admin import BaseAffiliateAdmin, BaseAffiliateCountAdmin,\
+from affiliate.admin import BaseAffiliateAdmin, BaseAffiliateStatsAdmin,\
     BaseAffiliateBannerAdmin, BasePaymentRequestAdmin
-from .models import Affiliate, AffiliateCount, AffiliateBanner,\
+from .models import Affiliate, AffiliateStats, AffiliateBanner,\
     PaymentRequest
 
 
@@ -10,7 +10,7 @@ class AffiliateAdmin(BaseAffiliateAdmin):
     pass
 
 
-class AffiliateCountAdmin(BaseAffiliateCountAdmin):
+class AffiliateStatsAdmin(BaseAffiliateStatsAdmin):
     pass
 
 
@@ -23,6 +23,6 @@ class PaymentRequestAdmin(BasePaymentRequestAdmin):
 
 
 admin.site.register(Affiliate, AffiliateAdmin)
-admin.site.register(AffiliateCount, AffiliateCountAdmin)
+admin.site.register(AffiliateStats, AffiliateStatsAdmin)
 admin.site.register(AffiliateBanner, AffiliateBannerAdmin)
 admin.site.register(PaymentRequest, PaymentRequestAdmin)

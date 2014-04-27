@@ -20,7 +20,7 @@ AFFILIATE_MODEL = settings.AFFILIATE_MODEL
 AFFILIATE_COUNT_MODEL = settings.AFFILIATE_COUNT_MODEL
 
 AffiliateModel = get_model(*AFFILIATE_MODEL.split("."))
-AffiliateModelCount = get_model(*AFFILIATE_COUNT_MODEL.split("."))
+AffiliateModelStats = get_model(*AFFILIATE_COUNT_MODEL.split("."))
 
 C_PFX = 'a_'
 
@@ -31,7 +31,7 @@ class AffiliateMiddleware(object):
         aid = None
         session = request.session
         now = datetime.now()
-        if request.method in 'GET':
+        if request.method == 'GET':
             aid = request.GET.get(AFFILIATE_NAME, None)
             if aid:
                 request.aid = aid
@@ -44,7 +44,6 @@ class AffiliateMiddleware(object):
             aid = session.get('aid', None)
             if aid:
                 aid_dt = session.get('aid_dt', None)
-                # if (now - aid_dt).seconds > :
                 if (now - aid_dt).seconds > AFFILIATE_SESSION_AGE:
                     # aid expired
                     aid = None
@@ -65,12 +64,12 @@ class AffiliateMiddleware(object):
                 aid_ip_pool.add(ip)
                 timeout = get_seconds_day_left(now)
                 cache.set(c_key, aid_ip_pool, timeout)
-            nb = AffiliateModelCount.objects.incr_count_views(aid, now,
+            nb = AffiliateModelStats.objects.incr_count_views(aid, now,
                 ip_new=ip_new)
             if not nb:
                 try:
                     aff = AffiliateModel.objects.get(aid=aid)
-                    AffiliateModelCount.objects.create(affiliate=aff,
+                    AffiliateModelStats.objects.create(affiliate=aff,
                         total_views=1, unique_visitors=1)
                 except AffiliateModel.DoesNotExist:
                     l.warning("Access with unknown affiliate code: {0}"

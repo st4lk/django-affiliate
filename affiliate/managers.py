@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from .queryset import AffiliateCountQuerySet, AffiliateBannerQuerySet,\
+from .queryset import AffiliateStatsQuerySet, AffiliateBannerQuerySet,\
     PaymentRequestQuerySet
 
 
-class AffiliateCountManager(models.Manager):
+class AffiliateStatsManager(models.Manager):
     def get_query_set(self):
-        return AffiliateCountQuerySet(self.model)
+        return AffiliateStatsQuerySet(self.model)
 
     def __getattr__(self, attr, *args):
         # see https://code.djangoproject.com/ticket/15062 for details
