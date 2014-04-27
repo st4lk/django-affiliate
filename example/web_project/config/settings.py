@@ -192,7 +192,7 @@ AFFILIATE_COUNT_MODEL = "partner.AffiliateCount"
 # Affiliate optional settings
 AFFILIATE_SESSION = True
 AFFILIATE_SESSION_AGE = 24 * 60 * 60  # in seconds
-AFFILIATE_SKIP_PATH_STARTS = ['/admin/']
+AFFILIATE_SKIP_PATH_STARTS = ['/admin/', '/users/affiliate/']
 AFFILIATE_START_AID = "100"
 AFFILIATE_MIN_BALANCE_FOR_REQUEST = 1.0
 AFFILIATE_REWARD_AMOUNT = "0.01"

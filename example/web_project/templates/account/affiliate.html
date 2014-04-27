@@ -57,6 +57,30 @@
             </tr>
         </table>
 
+        <h3>{% trans "Your visitors stats" %}</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <td>{% trans "Date" %}</td>
+                    <td>{% trans "Page views" %}</td>
+                    <td>{% trans "Unique visitors" %}</td>
+                    <td>{% trans "Number of payments" %}</td>
+                    <td>{% trans "Payments amount" %}, {{currency_label}}</td>
+                    <td>{% trans "Reward amount" %}, {{currency_label}}</td>
+                </tr>
+            </thead>
+            {% for vstat in visitor_stats %}
+                <tr>
+                    <td>{{ vstat.date }}</td>
+                    <td>{{ vstat.total_views }}</td>
+                    <td>{{ vstat.unique_visitors }}</td>
+                    <td>{{ vstat.payments_count }}</td>
+                    <td>{{ vstat.payments_amount }}</td>
+                    <td>{{ vstat.rewards_amount }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
         <h3>{% trans "Your withdraw transactions" %}</h3>
         {% if pay_requests %}
             <table class="table table-bordered">
@@ -64,7 +88,7 @@
                     <tr>
                         <td>{% trans "ID" %}</td>
                         <td>{% trans "Amount" %}, {{ currency_label }}</td>
-                        <td>{% trans "Status" %}, {{ currency_label }}</td>
+                        <td>{% trans "Status" %}</td>
                         <td>{% trans "Created at" %}</td>
                         <td>{% trans "Payed at" %}</td>
                     </tr>

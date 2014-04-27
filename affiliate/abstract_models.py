@@ -33,8 +33,8 @@ class AbstractAffiliateCount(models.Model):
         default=0)
     total_views = models.IntegerField(_("Total page views count"),
         default=0)
-    payments_count = models.IntegerField(_("Payments count"), default=0)
-    payments_amount = models.DecimalField(_("Attracted payments amount"),
+    payments_count = models.IntegerField(_("Number of payments"), default=0)
+    payments_amount = models.DecimalField(_("Payments amount"),
         max_digits=6, decimal_places=2, default=D("0.0"))
     rewards_amount = models.DecimalField(_("Rewards amount"), max_digits=6,
         decimal_places=2, default=D("0.0"))

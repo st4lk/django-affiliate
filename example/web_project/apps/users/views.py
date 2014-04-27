@@ -92,4 +92,5 @@ class UserAffiliateView(SuccessMessageMixin, FormView):
             context['avaliable_for_request'] = self.affiliate.balance >= MIN_REQUEST_AMOUNT
             context['pay_requests'] = self.affiliate.pay_requests.all()
             context['banners'] = AffiliateBanner.objects.enabled()
+            context['visitor_stats'] = self.affiliate.counts.for_last_days(30)
         return context
