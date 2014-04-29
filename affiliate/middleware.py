@@ -14,7 +14,7 @@ l = logging.getLogger(__name__)
 
 AFFILIATE_NAME = get_affiliate_param_name()
 AFFILIATE_SESSION = getattr(settings, 'AFFILIATE_SESSION', True)
-AFFILIATE_SESSION_AGE = getattr(settings, 'AFFILIATE_SESSION_AGE', 24*60*60)
+AFFILIATE_SESSION_AGE = getattr(settings, 'AFFILIATE_SESSION_AGE', 5*24*60*60)
 AFFILIATE_SKIP_PATH = getattr(settings, 'AFFILIATE_SKIP_PATH_STARTS', [])
 AFFILIATE_MODEL = settings.AFFILIATE_MODEL
 AFFILIATE_COUNT_MODEL = settings.AFFILIATE_COUNT_MODEL
@@ -52,9 +52,10 @@ class AffiliateMiddleware(object):
         request.aid = aid
 
     def process_response(self, request, response):
-        aid = request.aid
-        if aid and response.status_code == 200\
-                and self.is_track_path(request.path):
+        aid = getattr(request, "aid", None)
+        if not aid:
+            l.error("aid not set")
+        elif response.status_code == 200 and self.is_track_path(request.path):
             now = datetime.now()
             ip = get_client_ip(request)
             cache = get_cache('default')
@@ -88,3 +89,5 @@ class AffiliateMiddleware(object):
         if not aid_ip_pool:
             aid_ip_pool = set()
         return ip_new, aid_ip_pool
+
+# TODO: attach lazy method to request: affiliate, that return Affiliate instance

@@ -54,7 +54,7 @@ class AbstractAffiliateStats(models.Model):
             ("affiliate", "date"),
         )
         verbose_name = _("Affiliate statistic")
-        verbose_name_plural = _("Affiliate statisticsp")
+        verbose_name_plural = _("Affiliate statistics")
         ordering = "-id",
 
     def incr_payments(self, purchase_total_price, reward, commit=True):
@@ -146,15 +146,21 @@ class AbstractAffiliate(models.Model):
         self.balance += reward
         if commit:
             self.save()
-        aff_count = self.get_affiliate_count()
-        aff_count.incr_payments(purchase_total_price, reward)
+        aff_stats = self.get_affiliate_stats()
+        aff_stats.incr_payments(purchase_total_price, reward)
         affiliate_post_reward.send(sender=None, affiliate=self, reward=reward)
+
+    def get_printable_reward(self):
+        if self.reward_percentage:
+            return u"{0:.0f} %".format(self.reward_amount * 100)
+        else:
+            return u"{0} {1}".format(self.reward_amount, self.get_currency())
 
     @staticmethod
     def quantize_amount(amount):
         return amount.quantize(TWOPLACES)
 
-    def get_affiliate_count(self):
+    def get_affiliate_stats(self):
         try:
             return self.stats.order_by("-date")[0]
         except IndexError:
@@ -165,7 +171,6 @@ class AbstractAffiliate(models.Model):
         # Override this method to define your custom creation logic
         raise NotImplementedError()
 
-    @classmethod
     def get_currency(cls):
         # Override this method to define you currency label
         return settings.DEFAULT_CURRENCY

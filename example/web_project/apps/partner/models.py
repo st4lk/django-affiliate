@@ -4,6 +4,7 @@ from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
 from django.core.mail import send_mail
+from django.db.models.signals import post_save
 from affiliate.abstract_models import AbstractAffiliate,\
     AbstractAffiliateStats, AbstractAffiliateBanner, AbstractPaymentRequest
 from affiliate.signals import affiliate_post_reward, affiliate_post_withdraw
@@ -42,7 +43,7 @@ def affiliate_rewared(sender, affiliate, reward, **kwargs):
     message = ("Reward amount: {amt:.2f} {currency}.\n"
         "You current balance is: {balance:.2f} {currency}. Thank you!"
         .format(amt=reward, balance=affiliate.balance,
-            currency=settings.DEFAULT_CURRENCY))
+            currency=affiliate.get_currency()))
     send_mail(subject, message, settings.SITE_EMAIL, [affiliate.user.email])
 
 
@@ -54,5 +55,11 @@ def affiliate_withdraw_completed(sender, payment_request, **kwargs):
     message = ("Transaction amount: {amt:.2f} {currency}.\n"
         "You current balance is: {balance:.2f} {currency}. Thank you!"
         .format(amt=payment_request.amount, balance=aff.balance,
-            currency=settings.DEFAULT_CURRENCY))
+            currency=aff.get_currency()))
     send_mail(subject, message, settings.SITE_EMAIL, [aff.user.email])
+
+
+@receiver(post_save, sender=PaymentRequest)
+def affiliate_withdraw_request(sender, payment_request, **kwargs):
+    # TODO
+    pass

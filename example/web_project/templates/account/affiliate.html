@@ -53,7 +53,7 @@
                 <td>{{ affiliate.total_payed }}</td>
                 <td>{{ affiliate.total_payments_count }}</td>
                 <td>{{ affiliate.total_payments_amount }}</td>
-                <td>{{ affiliate.reward_amount }} {% if affiliate.reward_percentage %}%{% else %}{{default_currency}}{% endif %}</td>
+                <td>{{ affiliate.get_printable_reward }}{% endif %}</td>
             </tr>
         </table>
 
@@ -107,7 +107,7 @@
             <div>{% trans "There are no payment requests made yet" %}</div>
         {% endif %}
     {% else %}
-        {% trans "Currently you don't have affiliate program. Please, create it first." %}
+        {% trans "Currently you don't have affiliate program. Please, enable it first." %}
     {% endif %}
 {% endblock %}
 

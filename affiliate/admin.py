@@ -31,7 +31,7 @@ class BaseAffiliateBannerAdmin(admin.ModelAdmin):
 class BasePaymentRequestAdmin(admin.ModelAdmin):
     list_display = "affiliate", "amount", "status", "created_at"
     change_form_template = 'admin/request_change_form.html'
-    readonly_fields = "payed_at",
+    readonly_fields = "payed_at", "status", "amount",
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}

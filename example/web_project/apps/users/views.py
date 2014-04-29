@@ -76,7 +76,7 @@ class UserAffiliateView(SuccessMessageMixin, FormView):
         if self.affiliate:
             return _("Request for payment was sent")
         else:
-            return _("Affiliate successfully created")
+            return _("Affiliate account successfully created")
 
     def form_valid(self, form):
         form.save()
