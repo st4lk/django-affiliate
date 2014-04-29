@@ -5,6 +5,7 @@ from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import get_current_site
+from django.utils.html import escape
 from model_utils import Choices
 from relish.decorators import instance_cache
 from .managers import AffiliateStatsManager, AffiliateBannerManager,\
@@ -12,10 +13,10 @@ from .managers import AffiliateStatsManager, AffiliateBannerManager,\
 from .tools import get_affiliate_param_name
 from .signals import affiliate_post_withdraw, affiliate_post_reward
 
-START_AID = getattr(settings, 'AFFILIATE_START_AID', "100")
+START_AID = getattr(settings, 'AFFILIATE_START_AID', "1000")
 AID_NAME = get_affiliate_param_name()
 BANNER_FOLDER = getattr(settings, 'AFFILIATE_BANNER_PATH', 'affiliate')
-REWARD_AMOUNT = getattr(settings, 'AFFILIATE_REWARD_AMOUNT', D('0.01'))
+REWARD_AMOUNT = getattr(settings, 'AFFILIATE_REWARD_AMOUNT', D('5.0'))
 REWARD_PERCENTAGE = getattr(settings, 'AFFILIATE_REWARD_PERCENTAGE', True)
 TWOPLACES = D('0.01')
 
@@ -80,7 +81,7 @@ class AbstractAffiliate(models.Model):
     created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
     reward_amount = models.DecimalField(_("Reward amount"), max_digits=5,
         decimal_places=2, default=REWARD_AMOUNT)
-    reward_percentage = models.BooleanField(_('Percentage discount'),
+    reward_percentage = models.BooleanField(_('In percent'),
         default=REWARD_PERCENTAGE)
 
     class Meta:
@@ -109,12 +110,15 @@ class AbstractAffiliate(models.Model):
         link = self.render_link(request)
         return '<a href="{link}">{name}</a>'.format(link=link, name=site.name)
 
-    def render_img(self, banner, request=None):
+    def render_img(self, banner, request=None, autoescape=False):
         domain = self.get_site(request).domain.rstrip('/')
         link = self.render_link(request)
-        return u'<a href="{link}"><img src="{domain}{img_url}" title="{caption}" alt="{caption}"/></a>'\
+        html = u'<a href="{link}"><img src="{domain}{img_url}" title="{caption}" alt="{caption}"/></a>'\
             .format(link=link, domain=domain, img_url=banner.image.url,
-                caption=banner.caption)
+                 caption=banner.caption)
+        if autoescape:
+            html = escape(html)
+        return html
 
     @instance_cache
     def get_site(self, request=None):
@@ -139,7 +143,7 @@ class AbstractAffiliate(models.Model):
         self.total_payments_count += 1
         self.total_payments_amount += purchase_total_price
         if self.reward_percentage:
-            reward = purchase_total_price * self.reward_amount
+            reward = purchase_total_price * (self.reward_amount / D('100.0'))
             reward = self.quantize_amount(reward)
         else:
             reward = self.reward_amount
@@ -151,10 +155,11 @@ class AbstractAffiliate(models.Model):
         affiliate_post_reward.send(sender=None, affiliate=self, reward=reward)
 
     def get_printable_reward(self):
+        reward = D(self.reward_amount)
         if self.reward_percentage:
-            return u"{0:.0f} %".format(self.reward_amount * 100)
+            return u"{0:.0f} %".format(reward)
         else:
-            return u"{0} {1}".format(self.reward_amount, self.get_currency())
+            return u"{0:.0f} {1}".format(reward, self.get_currency())
 
     @staticmethod
     def quantize_amount(amount):

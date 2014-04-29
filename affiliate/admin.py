@@ -7,7 +7,8 @@ from .abstract_models import NotEnoughMoneyError
 
 
 class BaseAffiliateAdmin(admin.ModelAdmin):
-    list_display = "aid", "balance", "total_payed", "total_payments_count"
+    list_display = ("aid", "balance", "total_payed", "total_payments_count",
+        "created_at")
 
 
 class BaseAffiliateStatsAdmin(admin.ModelAdmin):

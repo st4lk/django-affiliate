@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from decimal import Decimal as D
 from os.path import join
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -193,9 +194,9 @@ AFFILIATE_COUNT_MODEL = "partner.AffiliateStats"
 AFFILIATE_SESSION = True
 AFFILIATE_SESSION_AGE = 5 * 24 * 60 * 60  # 5 days in seconds
 AFFILIATE_SKIP_PATH_STARTS = ['/admin/', '/users/affiliate/']
-AFFILIATE_START_AID = "100"
+AFFILIATE_START_AID = "1000"
 AFFILIATE_MIN_BALANCE_FOR_REQUEST = 1.0
-AFFILIATE_REWARD_AMOUNT = "0.05"
+AFFILIATE_REWARD_AMOUNT = D("5.0")
 AFFILIATE_REWARD_PERCENTAGE = True
 
 DEFAULT_CURRENCY = "USD"
