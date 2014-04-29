@@ -6,7 +6,7 @@ from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.db.models.signals import post_save
 from affiliate.abstract_models import AbstractAffiliate,\
-    AbstractAffiliateStats, AbstractAffiliateBanner, AbstractPaymentRequest
+    AbstractAffiliateStats, AbstractAffiliateBanner, AbstractWithdrawRequest
 from affiliate.signals import affiliate_post_reward, affiliate_post_withdraw
 
 l = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ class AffiliateBanner(AbstractAffiliateBanner):
     pass
 
 
-class PaymentRequest(AbstractPaymentRequest):
+class WithdrawRequest(AbstractWithdrawRequest):
     pass
 
 
@@ -59,7 +59,7 @@ def affiliate_withdraw_completed(sender, payment_request, **kwargs):
     send_mail(subject, message, settings.SITE_EMAIL, [aff.user.email])
 
 
-@receiver(post_save, sender=PaymentRequest)
+@receiver(post_save, sender=WithdrawRequest)
 def affiliate_withdraw_request(sender, payment_request, **kwargs):
     # TODO
     pass

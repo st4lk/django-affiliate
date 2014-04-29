@@ -19,7 +19,7 @@ class AffiliateStatsQuerySet(QuerySet):
         return self.filter(date__gte=days_ago).order_by("-date")
 
 
-class PaymentRequestQuerySet(QuerySet):
+class WithdrawRequestQuerySet(QuerySet):
     def pending(self):
         return self.filter(status=self.model.PAY_STATUS.pending)
 

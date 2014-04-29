@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from .queryset import AffiliateStatsQuerySet, AffiliateBannerQuerySet,\
-    PaymentRequestQuerySet
+    WithdrawRequestQuerySet
 
 
 class AffiliateStatsManager(models.Manager):
@@ -26,9 +26,9 @@ class AffiliateBannerManager(models.Manager):
         return getattr(self.get_query_set(), attr, *args)
 
 
-class PaymentRequestManager(models.Manager):
+class WithdrawRequestManager(models.Manager):
     def get_query_set(self):
-        return PaymentRequestQuerySet(self.model)
+        return WithdrawRequestQuerySet(self.model)
 
     def __getattr__(self, attr, *args):
         # see https://code.djangoproject.com/ticket/15062 for details

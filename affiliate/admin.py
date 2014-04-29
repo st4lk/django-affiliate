@@ -28,14 +28,14 @@ class BaseAffiliateBannerAdmin(admin.ModelAdmin):
     get_height.short_description = _("Height")
 
 
-class BasePaymentRequestAdmin(admin.ModelAdmin):
+class BaseWithdrawRequestAdmin(admin.ModelAdmin):
     list_display = "affiliate", "amount", "status", "created_at"
     change_form_template = 'admin/request_change_form.html'
     readonly_fields = "payed_at", "status", "amount",
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
-        resp = super(BasePaymentRequestAdmin, self).change_view(
+        resp = super(BaseWithdrawRequestAdmin, self).change_view(
             request, object_id, form_url=form_url, extra_context=extra_context)
         if request.method == 'POST' and '_affiliate_payed' in request.POST\
                 and isinstance(resp, HttpResponseRedirect):

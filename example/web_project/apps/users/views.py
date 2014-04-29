@@ -9,7 +9,7 @@ from relish.views.messages import SuccessMessageMixin
 from relish.decorators import instance_cache
 
 from apps.partner.models import Affiliate, AffiliateBanner
-from .forms import UserForm, CreateAffiliateForm, AffiliatePaymentRequestForm
+from .forms import UserForm, CreateAffiliateForm, AffiliateWithdrawRequestForm
 from .models import User
 
 
@@ -55,7 +55,7 @@ class UserAffiliateView(SuccessMessageMixin, FormView):
 
     def get_form_class(self):
         if self.affiliate:
-            form_class = AffiliatePaymentRequestForm
+            form_class = AffiliateWithdrawRequestForm
         else:
             form_class = CreateAffiliateForm
         return form_class

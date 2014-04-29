@@ -56,10 +56,10 @@ class CreateAffiliateForm(forms.Form):
         return aff
 
 
-class AffiliatePaymentRequestForm(forms.Form):
+class AffiliateWithdrawRequestForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.affiliate = kwargs.pop('affiliate', None)
-        super(AffiliatePaymentRequestForm, self).__init__(*args, **kwargs)
+        super(AffiliateWithdrawRequestForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         if self.affiliate is None:

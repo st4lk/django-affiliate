@@ -8,7 +8,7 @@ from django.contrib.sites.models import get_current_site
 from model_utils import Choices
 from relish.decorators import instance_cache
 from .managers import AffiliateStatsManager, AffiliateBannerManager,\
-    PaymentRequestManager
+    WithdrawRequestManager
 from .tools import get_affiliate_param_name
 from .signals import affiliate_post_withdraw, affiliate_post_reward
 
@@ -193,7 +193,7 @@ class AbstractAffiliateBanner(models.Model):
         verbose_name_plural = _("Affiliate banners")
 
 
-class AbstractPaymentRequest(models.Model):
+class AbstractWithdrawRequest(models.Model):
     PAY_STATUS = Choices(
         ('pending', _("Pending")),
         ('done', _("Done")),
@@ -209,13 +209,13 @@ class AbstractPaymentRequest(models.Model):
     created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
     payed_at = models.DateTimeField(_("Payed at"), null=True, blank=True)
 
-    objects = PaymentRequestManager()
+    objects = WithdrawRequestManager()
 
     class Meta:
         abstract = True
         ordering = "-status", "-payed_at"
-        verbose_name = _("Payment request")
-        verbose_name_plural = _("Payment requests")
+        verbose_name = _("Withdraw request")
+        verbose_name_plural = _("Withdraw requests")
 
     def __unicode__(self):
         return u"{0} {1}".format(self.affiliate, self.status)
