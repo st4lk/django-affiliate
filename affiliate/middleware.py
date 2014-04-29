@@ -3,10 +3,9 @@ import logging
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.db.models.loading import get_model
 from django.core.cache import get_cache
 from .tools import get_affiliate_param_name, remove_affiliate_code,\
-    get_seconds_day_left
+    get_seconds_day_left, get_affiliate_model, get_affiliatestats_model
 from relish.helpers.request import get_client_ip
 
 l = logging.getLogger(__name__)
@@ -16,13 +15,11 @@ AFFILIATE_NAME = get_affiliate_param_name()
 AFFILIATE_SESSION = getattr(settings, 'AFFILIATE_SESSION', True)
 AFFILIATE_SESSION_AGE = getattr(settings, 'AFFILIATE_SESSION_AGE', 5*24*60*60)
 AFFILIATE_SKIP_PATH = getattr(settings, 'AFFILIATE_SKIP_PATH_STARTS', [])
-AFFILIATE_MODEL = settings.AFFILIATE_MODEL
-AFFILIATE_COUNT_MODEL = settings.AFFILIATE_COUNT_MODEL
-
-AffiliateModel = get_model(*AFFILIATE_MODEL.split("."))
-AffiliateModelStats = get_model(*AFFILIATE_COUNT_MODEL.split("."))
 
 C_PFX = 'a_'
+
+AffiliateModel = get_affiliate_model()
+AffiliateModelStats = get_affiliatestats_model()
 
 
 class AffiliateMiddleware(object):

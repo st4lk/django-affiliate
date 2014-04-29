@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from apps.partner.models import Affiliate
+from .tools import get_affiliate_model
+AffiliateModel = get_affiliate_model()
 
 
 class AffiliateCreateForm(forms.Form):
@@ -17,12 +18,12 @@ class AffiliateCreateForm(forms.Form):
         try:
             self.user.affiliate
             raise forms.ValidationError(_("Affiliate already created"))
-        except Affiliate.DoesNotExist:
+        except AffiliateModel.DoesNotExist:
             pass
         return self.cleaned_data
 
     def save(self):
-        aff = Affiliate.create_affiliate(user=self.user)
+        aff = AffiliateModel.create_affiliate(user=self.user)
         return aff
 
 

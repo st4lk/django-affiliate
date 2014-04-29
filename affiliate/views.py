@@ -5,8 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from relish.views.messages import SuccessMessageMixin
 from relish.decorators import instance_cache
-
-from apps.partner.models import Affiliate, AffiliateBanner
+from .tools import get_affiliate_model
 from .forms import AffiliateCreateForm, AffiliateWithdrawRequestForm
 
 MIN_REQUEST_AMOUNT = getattr(settings, 'AFFILIATE_MIN_BALANCE_FOR_REQUEST', D('1.0'))
@@ -25,12 +24,19 @@ class AffiliateBaseView(SuccessMessageMixin, FormView):
     def user(self):
         return self.request.user
 
+    def get_affiliate_model(self):
+        return get_affiliate_model()
+
+    def get_affiliate_banner_model(self):
+        raise NotImplementedError()
+
     @property
     @instance_cache
     def affiliate(self):
+        aff_model = self.get_affiliate_model()
         try:
-            return Affiliate.objects.get(user=self.user)
-        except Affiliate.DoesNotExist:
+            return aff_model.objects.get(user=self.user)
+        except aff_model.DoesNotExist:
             return None
 
     def get_form_class(self):
@@ -72,6 +78,7 @@ class AffiliateBaseView(SuccessMessageMixin, FormView):
             context['requested'] = affiliate.pay_requests.pending()
             context['avaliable_for_request'] = affiliate.balance >= MIN_REQUEST_AMOUNT
             context['pay_requests'] = affiliate.pay_requests.all()
-            context['banners'] = AffiliateBanner.objects.enabled()
+            aff_banner_model = self.get_affiliate_banner_model()
+            context['banners'] = aff_banner_model.objects.enabled()
             context['visitor_stats'] = affiliate.stats.for_last_days(30)
         return context

@@ -1,8 +1,21 @@
 # -*- coding: utf-8 -*-
 from urlparse import urlparse, parse_qs
 from urllib import urlencode
-from django.conf import settings
 from datetime import datetime
+from django.conf import settings
+from django.db.models.loading import get_model
+
+
+AFFILIATE_MODEL = settings.AFFILIATE_MODEL
+AFFILIATE_COUNT_MODEL = settings.AFFILIATE_COUNT_MODEL
+
+
+def get_affiliate_model():
+    return get_model(*AFFILIATE_MODEL.split("."))
+
+
+def get_affiliatestats_model():
+    return get_model(*AFFILIATE_COUNT_MODEL.split("."))
 
 
 def get_affiliate_param_name():
