@@ -84,13 +84,14 @@ class UserAffiliateView(SuccessMessageMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(UserAffiliateView, self).get_context_data(**kwargs)
-        context['affiliate'] = self.affiliate
+        affiliate = self.affiliate
+        context['affiliate'] = affiliate
         context['min_request_amount'] = MIN_REQUEST_AMOUNT
-        context['currency_label'] = Affiliate.get_currency()
-        if self.affiliate:
-            context['requested'] = self.affiliate.pay_requests.pending()
-            context['avaliable_for_request'] = self.affiliate.balance >= MIN_REQUEST_AMOUNT
-            context['pay_requests'] = self.affiliate.pay_requests.all()
+        if affiliate:
+            context['currency_label'] = affiliate.get_currency()
+            context['requested'] = affiliate.pay_requests.pending()
+            context['avaliable_for_request'] = affiliate.balance >= MIN_REQUEST_AMOUNT
+            context['pay_requests'] = affiliate.pay_requests.all()
             context['banners'] = AffiliateBanner.objects.enabled()
-            context['visitor_stats'] = self.affiliate.stats.for_last_days(30)
+            context['visitor_stats'] = affiliate.stats.for_last_days(30)
         return context

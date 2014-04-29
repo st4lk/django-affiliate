@@ -60,6 +60,6 @@ def affiliate_withdraw_completed(sender, payment_request, **kwargs):
 
 
 @receiver(post_save, sender=WithdrawRequest)
-def affiliate_withdraw_request(sender, payment_request, **kwargs):
+def affiliate_withdraw_request(sender, instance, created, **kwargs):
     # TODO
     pass

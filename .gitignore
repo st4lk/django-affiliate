@@ -10,6 +10,7 @@ generate_rst.py
 build/
 .coverage
 *.log
+*.log.*
 *.sqlite
 *.sqlite3
 *.backup
