@@ -41,7 +41,7 @@
         <a class="navbar-brand" href="{% url_aff 'products:list' %}">{% trans "Affiliate system" %}</a>
         <ul class="nav navbar-nav">
           {% if request.user.is_authenticated %}
-            <li><a href="{% url_aff 'users:affiliate' %}">{% trans "Partner account" %}</a></li>
+            <li><a href="{% url_aff 'partner:affiliate' %}">{% trans "Partner account" %}</a></li>
             <li><a href="{% url_aff 'users:logout_confirm' %}">{% trans "Logout" %}</a></li>
           {% else %}
             <li><a href="{% url_aff 'users:login' %}">{% trans "Sign In" %}</a></li>
