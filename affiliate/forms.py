@@ -5,6 +5,10 @@ from apps.partner.models import Affiliate
 
 
 class CreateAffiliateForm(forms.Form):
+    """
+    Redefine it to respect your custom Affiliate model.
+    This form asserts, that Affiliate has OneToOne relationship to User.
+    """
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(CreateAffiliateForm, self).__init__(*args, **kwargs)
@@ -23,6 +27,9 @@ class CreateAffiliateForm(forms.Form):
 
 
 class AffiliateWithdrawRequestForm(forms.Form):
+    """
+    Redefine it to respect your custom WithdrawRequest model.
+    """
     def __init__(self, *args, **kwargs):
         self.affiliate = kwargs.pop('affiliate', None)
         super(AffiliateWithdrawRequestForm, self).__init__(*args, **kwargs)
