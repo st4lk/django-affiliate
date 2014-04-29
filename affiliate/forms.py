@@ -4,14 +4,14 @@ from django.utils.translation import ugettext_lazy as _
 from apps.partner.models import Affiliate
 
 
-class CreateAffiliateForm(forms.Form):
+class AffiliateCreateForm(forms.Form):
     """
     Redefine it to respect your custom Affiliate model.
     This form asserts, that Affiliate has OneToOne relationship to User.
     """
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
-        super(CreateAffiliateForm, self).__init__(*args, **kwargs)
+        super(AffiliateCreateForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         try:

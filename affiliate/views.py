@@ -7,7 +7,7 @@ from relish.views.messages import SuccessMessageMixin
 from relish.decorators import instance_cache
 
 from apps.partner.models import Affiliate, AffiliateBanner
-from .forms import CreateAffiliateForm, AffiliateWithdrawRequestForm
+from .forms import AffiliateCreateForm, AffiliateWithdrawRequestForm
 
 MIN_REQUEST_AMOUNT = getattr(settings, 'AFFILIATE_MIN_BALANCE_FOR_REQUEST', D('1.0'))
 
@@ -37,7 +37,7 @@ class AffiliateBaseView(SuccessMessageMixin, FormView):
         if self.affiliate:
             form_class = AffiliateWithdrawRequestForm
         else:
-            form_class = CreateAffiliateForm
+            form_class = AffiliateCreateForm
         return form_class
 
     def get_form_kwargs(self):
