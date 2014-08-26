@@ -7,6 +7,7 @@ from django.core.cache import get_cache
 from .tools import get_affiliate_param_name, remove_affiliate_code,\
     get_seconds_day_left, get_affiliate_model, get_affiliatestats_model
 from relish.helpers.request import get_client_ip
+from dateutil import parser
 
 l = logging.getLogger(__name__)
 
@@ -28,19 +29,20 @@ class AffiliateMiddleware(object):
         aid = None
         session = request.session
         now = datetime.now()
+        str_now = str(now)
         if request.method == 'GET':
             aid = request.GET.get(AFFILIATE_NAME, None)
             if aid:
                 request.aid = aid
                 if AFFILIATE_SESSION:
                     session['aid'] = aid
-                    session['aid_dt'] = now
+                    session['aid_dt'] = str_now
                     url = remove_affiliate_code(request.get_full_path())
                     return HttpResponseRedirect(url)
         if not aid and AFFILIATE_SESSION:
             aid = session.get('aid', None)
             if aid:
-                aid_dt = session.get('aid_dt', None)
+                aid_dt = parser.parse(session.get('aid_dt', None))
                 if (now - aid_dt).seconds > AFFILIATE_SESSION_AGE:
                     # aid expired
                     aid = None
