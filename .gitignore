@@ -5,7 +5,7 @@
 .tox/
 *.egg-info
 dist/
-README.rst
+README.md
 generate_rst.py
 build/
 .coverage

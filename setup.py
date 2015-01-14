@@ -21,8 +21,6 @@ setup(
     long_description=__read('README.rst'),
     platforms=('Any'),
     packages=find_packages(),
-    # TODO: this package also needs as dependency
-    # https://github.com/st4lk/django-relish/archive/v0.1.0.tar.gz
     install_requires=install_requires,
     keywords='django affiliate urls track'.split(),
     include_package_data=True,
