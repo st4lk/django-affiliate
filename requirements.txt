@@ -1,3 +1,4 @@
 django>=1.4,<1.7
 django-model-utils==2.0.3
-python-dateutil==2.2
+relish==0.1.1
+Pillow

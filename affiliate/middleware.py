@@ -7,14 +7,13 @@ from django.core.cache import get_cache
 from .tools import get_affiliate_param_name, remove_affiliate_code,\
     get_seconds_day_left, get_affiliate_model, get_affiliatestats_model
 from relish.helpers.request import get_client_ip
-from dateutil import parser
 
 l = logging.getLogger(__name__)
 
 
 AFFILIATE_NAME = get_affiliate_param_name()
 AFFILIATE_SESSION = getattr(settings, 'AFFILIATE_SESSION', True)
-AFFILIATE_SESSION_AGE = getattr(settings, 'AFFILIATE_SESSION_AGE', 5*24*60*60)
+AFFILIATE_SESSION_AGE = getattr(settings, 'AFFILIATE_SESSION_AGE', 5 * 24 * 60 * 60)
 AFFILIATE_SKIP_PATH = getattr(settings, 'AFFILIATE_SKIP_PATH_STARTS', [])
 
 C_PFX = 'a_'
@@ -24,30 +23,34 @@ AffiliateModelStats = get_affiliatestats_model()
 
 
 class AffiliateMiddleware(object):
+    datetime_format = '%Y-%m-%d %H:%M:%S'
 
     def process_request(self, request):
         aid = None
         session = request.session
         now = datetime.now()
-        str_now = str(now)
         if request.method == 'GET':
             aid = request.GET.get(AFFILIATE_NAME, None)
             if aid:
                 request.aid = aid
                 if AFFILIATE_SESSION:
                     session['aid'] = aid
-                    session['aid_dt'] = str_now
+                    session['aid_dt'] = now.strftime(self.datetime_format)
                     url = remove_affiliate_code(request.get_full_path())
                     return HttpResponseRedirect(url)
         if not aid and AFFILIATE_SESSION:
             aid = session.get('aid', None)
             if aid:
-                aid_dt = parser.parse(session.get('aid_dt', None))
-                if (now - aid_dt).seconds > AFFILIATE_SESSION_AGE:
-                    # aid expired
-                    aid = None
-                    session.pop('aid')
-                    session.pop('aid_dt')
+                aid_dt = session.get('aid_dt', None)
+                if aid_dt is None:
+                    l.error('aid_dt not found in session')
+                else:
+                    aid_dt = datetime.strptime(aid_dt, self.datetime_format)
+                    if (now - aid_dt).seconds > AFFILIATE_SESSION_AGE:
+                        # aid expired
+                        aid = None
+                        session.pop('aid')
+                        session.pop('aid_dt')
         request.aid = aid
 
     def process_response(self, request, response):
