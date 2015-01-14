@@ -102,7 +102,7 @@ class AbstractAffiliate(models.Model):
     @instance_cache
     def render_link(self, request=None):
         site = self.get_site(request)
-        return '{domain}?{aid_name}={aid_code}'\
+        return 'http://{domain}?{aid_name}={aid_code}'\
             .format(domain=site.domain, aid_name=AID_NAME, aid_code=self.aid)
 
     def render_html_a(self, request=None):
