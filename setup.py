@@ -13,7 +13,7 @@ def __read(fname):
 install_requires = __read('requirements.txt').split()
 
 setup(
-    name='affiliate',
+    name='django-affiliate',
     author=__author__,
     author_email='alexevseev@gmail.com',
     version=__version__,
