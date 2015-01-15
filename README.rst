@@ -22,6 +22,12 @@ withdraw request, if his balance have some money.
 
 You can find example project in this repository.
 
+Used by projects
+----------------
+
+-  `builds.io <http://builds.io/>`__
+-  `wirelayer.net <http://www.wirelayer.net/>`__
+
 Requirements
 ------------
 
@@ -31,91 +37,94 @@ Requirements
 Quick start
 -----------
 
-1. Install this package to your python distribution
+1.  Install this package to your python distribution
 
-2. Add ‘affiliate’ to INSTALLED\_APP:
+    ::
 
-   ::
+        pip install django-affiliate
 
-       INSTALLED_APPS = [
-           # ...
-           'affiliate',
-       ]
+2.  Add 'affiliate' to INSTALLED\_APP:
 
-3. Add ‘affiliate.context\_processors.common’ to
-   TEMPLATE\_CONTEXT\_PROCESSORS:
+    ::
 
-   ::
+        INSTALLED_APPS = [
+            # ...
+            'affiliate',
+        ]
 
-       TEMPLATE_CONTEXT_PROCESSORS = (
-           # ...
-           'affiliate.context_processors.common',
-       )
+3.  Add 'affiliate.context\_processors.common' to
+    TEMPLATE\_CONTEXT\_PROCESSORS:
 
-4. Add ‘affiliate.middleware.AffiliateMiddleware’ to
-   MIDDLEWARE\_CLASSES:
+    ::
 
-   ::
+        TEMPLATE_CONTEXT_PROCESSORS = (
+            # ...
+            'affiliate.context_processors.common',
+        )
 
-       MIDDLEWARE_CLASSES = (
-           # ...
-           'affiliate.middleware.AffiliateMiddleware',
-       )
+4.  Add 'affiliate.middleware.AffiliateMiddleware' to
+    MIDDLEWARE\_CLASSES:
 
-5. Subclass affiliate abstract\_models:
+    ::
 
-   ::
+        MIDDLEWARE_CLASSES = (
+            # ...
+            'affiliate.middleware.AffiliateMiddleware',
+        )
 
-       from django.db import models
-       from django.conf import settings
-       from affiliate.abstract_models import AbstractAffiliate,\
-           AbstractAffiliateStats, AbstractAffiliateBanner, AbstractWithdrawRequest
+5.  Subclass affiliate abstract\_models:
 
+    ::
 
-       class Affiliate(AbstractAffiliate):
-           user = models.OneToOneField(settings.AUTH_USER_MODEL)
-
-           @classmethod
-           def create_affiliate(cls, user):
-               aff = cls(user=user)
-               aff.aid = aff.generate_aid()
-               l.info("Creating affiliate #{0} for user {1}"
-                   .format(aff.aid, user))
-               aff.save()
+        from django.db import models
+        from django.conf import settings
+        from affiliate.abstract_models import AbstractAffiliate,\
+            AbstractAffiliateStats, AbstractAffiliateBanner, AbstractWithdrawRequest
 
 
-       class AffiliateStats(AbstractAffiliateStats):
-           pass
+        class Affiliate(AbstractAffiliate):
+            user = models.OneToOneField(settings.AUTH_USER_MODEL)
+
+            @classmethod
+            def create_affiliate(cls, user):
+                aff = cls(user=user)
+                aff.aid = aff.generate_aid()
+                l.info("Creating affiliate #{0} for user {1}"
+                    .format(aff.aid, user))
+                aff.save()
 
 
-       class AffiliateBanner(AbstractAffiliateBanner):
-           pass
+        class AffiliateStats(AbstractAffiliateStats):
+            pass
 
 
-       class WithdrawRequest(AbstractWithdrawRequest):
-           pass
-
-6. Define your affiliate models in settings.py:
-
-   ::
-
-       AFFILIATE_MODEL = "partner.Affiliate"
-       AFFILIATE_COUNT_MODEL = "partner.AffiliateStats"
-
-7. Create affiliate cabinet:
-
-   ::
-
-       from affiliate.views import AffiliateBaseView
-       from .models import AffiliateBanner
+        class AffiliateBanner(AbstractAffiliateBanner):
+            pass
 
 
-       class AffiliateView(AffiliateBaseView):
-           template_name = "partner/affiliate.html"
+        class WithdrawRequest(AbstractWithdrawRequest):
+            pass
 
-           def get_affiliate_banner_model(self):
-               return AffiliateBanner
+6.  Define your affiliate models in settings.py:
 
+    ::
+
+        AFFILIATE_MODEL = "partner.Affiliate"
+        AFFILIATE_COUNT_MODEL = "partner.AffiliateStats"
+
+7.  Create affiliate cabinet:
+
+    ::
+
+        from affiliate.views import AffiliateBaseView
+        from .models import AffiliateBanner
+
+
+        class AffiliateView(AffiliateBaseView):
+            template_name = "partner/affiliate.html"
+
+            def get_affiliate_banner_model(self):
+                return AffiliateBanner
 
 8.  Define url for affiliate cabinet:
 
@@ -157,17 +166,17 @@ Quick start
 Optional
 ^^^^^^^^
 
-To always keep the aid GET parameter (maybe you don’t trust the cookies
+To always keep the aid GET parameter (maybe you don't trust the cookies
 or you want to reward affiliate only if his visitor make payment at
 current link access, and not tomorrow)
 
-11.1. Load ‘affiliate\_urls’ tags:
+11.1. Load 'affiliate\_urls' tags:
 
 ::
 
     {% load affiliate_urls %}
 
-11.2. Use ‘url\_aff’ instead of ‘url’ template tag:
+11.2. Use 'url\_aff' instead of 'url' template tag:
 
 ::
 
@@ -182,9 +191,9 @@ Required
 ^^^^^^^^
 
 -  ``AFFILIATE_MODEL`` - model, that subclass AbstractAffiliate.
-   “appname.ModelName”. Example: “partner.Affiliate”
+   "appname.ModelName". Example: "partner.Affiliate"
 -  ``AFFILIATE_COUNT_MODEL`` - model, that subclass AbstractAffiliate.
-   “appname.ModelName”. Example: “partner.AffiliateStats”
+   "appname.ModelName". Example: "partner.AffiliateStats"
 
 Optional
 ^^^^^^^^
