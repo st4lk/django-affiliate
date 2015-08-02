@@ -64,7 +64,11 @@ class AffiliateMiddleware(object):
     def process_response(self, request, response):
         aid = getattr(request, "aid", None)
         if not aid:
-            l.error("aid not set")
+            message = "aid not set"
+            if AFFILIATE_ALLOW_MISSING_SESSION:
+                l.warning(message)
+            else:
+                l.error(message)
         elif response.status_code == 200 and self.is_track_path(request.path):
             now = datetime.now()
             ip = get_client_ip(request)
