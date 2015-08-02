@@ -29,7 +29,7 @@ class AffiliateMiddleware(object):
 
     def process_request(self, request):
         aid = None
-        session = getattr(request, 'session')
+        session = getattr(request, 'session', None)
         if not session:
             if AFFILIATE_ALLOW_MISSING_SESSION:
                 l.warning("session not set for request")
