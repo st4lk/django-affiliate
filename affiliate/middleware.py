@@ -4,6 +4,7 @@ import logging
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.core.cache import get_cache
+from django.core.exceptions import ImproperlyConfigured
 from .tools import get_affiliate_param_name, remove_affiliate_code,\
     get_seconds_day_left, get_affiliate_model, get_affiliatestats_model
 from relish.helpers.request import get_client_ip
@@ -15,6 +16,7 @@ AFFILIATE_NAME = get_affiliate_param_name()
 AFFILIATE_SESSION = getattr(settings, 'AFFILIATE_SESSION', True)
 AFFILIATE_SESSION_AGE = getattr(settings, 'AFFILIATE_SESSION_AGE', 5 * 24 * 60 * 60)
 AFFILIATE_SKIP_PATH = getattr(settings, 'AFFILIATE_SKIP_PATH_STARTS', [])
+AFFILIATE_ALLOW_MISSING_SESSION = getattr(settings, 'AFFILIATE_ALLOW_MISSING_SESSION', False)
 
 C_PFX = 'a_'
 
@@ -27,7 +29,13 @@ class AffiliateMiddleware(object):
 
     def process_request(self, request):
         aid = None
-        session = request.session
+        session = getattr(request, 'session')
+        if not session:
+            l.error("session not set for request")
+            if AFFILIATE_ALLOW_MISSING_SESSION:
+                return
+            else:
+                raise ImproperlyConfigured("session attribute should be set for request. Please add 'django.contrib.sessions.middleware.SessionMiddleware' to your MIDDLEWARE_CLASSES")
         now = datetime.now()
         if request.method == 'GET':
             aid = request.GET.get(AFFILIATE_NAME, None)
