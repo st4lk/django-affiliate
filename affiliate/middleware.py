@@ -31,8 +31,8 @@ class AffiliateMiddleware(object):
         aid = None
         session = getattr(request, 'session')
         if not session:
-            l.error("session not set for request")
             if AFFILIATE_ALLOW_MISSING_SESSION:
+                l.warning("session not set for request")
                 return
             else:
                 raise ImproperlyConfigured("session attribute should be set for request. Please add 'django.contrib.sessions.middleware.SessionMiddleware' to your MIDDLEWARE_CLASSES")
