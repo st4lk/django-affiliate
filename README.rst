@@ -213,3 +213,6 @@ Optional
    ``Decimal("5.0")``
 -  ``AFFILIATE_REWARD_PERCENTAGE`` - reward is set in percent. Default
    ``True``
+-  ``AFFILIATE_ALLOW_MISSING_SESSION`` - allow ``request`` object to miss
+   "session" attribute. Processing of such requests will be skipped.
+   Default ``False``
