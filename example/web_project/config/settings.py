@@ -45,7 +45,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'crispy_forms',
     'affiliate',
-    # 'apps.users',
+    'apps.users',
     'apps.partner',
     'apps.products',
 )
@@ -137,8 +137,6 @@ AUTHENTICATION_BACKENDS = (
 # AUTH_USER_MODEL = "users.User"
 LOGIN_REDIRECT_URL = "home"
 LOGIN_URL = "/users/signin/"
-
-AUTOSLUG_SLUGIFY_FUNCTION = "slugify.slugify"
 
 EMAIL_HOST = "localhost"
 EMAIL_PORT = 1025
