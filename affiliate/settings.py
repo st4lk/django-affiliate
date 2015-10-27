@@ -3,7 +3,6 @@ from django.conf import settings
 from decimal import Decimal as D
 
 
-ALLOW_MISSING_SESSION = getattr(settings, 'AFFILIATE_ALLOW_MISSING_SESSION', False)  # TODO, looks odd setting
 AFFILIATE_MODEL = getattr(settings, 'AFFILIATE_AFFILIATE_MODEL', 'affiliate.Affiliate')
 PARAM_NAME = getattr(settings, 'AFFILIATE_PARAM_NAME', 'aid')
 REWARD_AMOUNT = getattr(settings, 'AFFILIATE_REWARD_AMOUNT', 10)

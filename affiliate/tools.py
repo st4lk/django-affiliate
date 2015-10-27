@@ -8,7 +8,7 @@ try:
 except ImportError:
     from django.db.models.loading import get_model as django_get_model
 
-    def get_model(self, app_label, model_name=None):
+    def get_model(app_label, model_name=None):
         if model_name is None:
             app_label, model_name = app_label.split('.')
         return django_get_model(app_label, model_name)

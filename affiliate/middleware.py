@@ -1,10 +1,10 @@
-from datetime import datetime
 import logging
 
 from . import settings as affiliate_settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import SimpleLazyObject
-# from django.apps import apps
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 from .models import NoAffiliate
 from .tools import get_model
@@ -25,46 +25,47 @@ def get_affiliate(request, new_aid, prev_aid, prev_aid_dt):
                 affiliate = affiliate or prev_affiliate or NoAffiliate()
             else:
                 affiliate = prev_affiliate
-                request.session['_aid'] = prev_aid
-                if prev_aid_dt:
-                    request.session['_aid_dt'] = prev_aid_dt
+                if affiliate_settings.SAVE_IN_SESSION:
+                    request.session['_aid'] = prev_aid
+                    if prev_aid_dt:
+                        request.session['_aid_dt'] = prev_aid_dt
         request._cached_affiliate = affiliate
     return request._cached_affiliate
 
 
 class AffiliateMiddleware(object):
-    datetime_format = '%Y-%m-%d %H:%M:%S'
 
     def process_request(self, request):
         new_aid, prev_aid, prev_aid_dt = None, None, None
-        session = getattr(request, 'session', None)
-        if not session:
-            if affiliate_settings.ALLOW_MISSING_SESSION:
-                l.warning("session not set for request")
-                return
-            else:
-                raise ImproperlyConfigured("session attribute should be set for request. Please add 'django.contrib.sessions.middleware.SessionMiddleware' to your MIDDLEWARE_CLASSES")
-        else:
-            prev_aid = session.get('_aid', None)
-            prev_aid_dt = session.get('_aid_dt', None)
-        now = datetime.now()
+        if affiliate_settings.SAVE_IN_SESSION:
+            session = getattr(request, 'session', None)
+            if not session:
+                raise ImproperlyConfigured(
+                    "session attribute should be set for request. Please add "
+                    "'django.contrib.sessions.middleware.SessionMiddleware' "
+                    "to your MIDDLEWARE_CLASSES")
+            elif affiliate_settings.SAVE_IN_SESSION:
+                prev_aid = session.get('_aid', None)
+                prev_aid_dt = session.get('_aid_dt', None)
+        now = timezone.now()
         if request.method == 'GET':
             new_aid = request.GET.get(affiliate_settings.PARAM_NAME, None)
             if new_aid:
                 if affiliate_settings.SAVE_IN_SESSION:
                     session['_aid'] = new_aid
-                    session['_aid_dt'] = now.strftime(self.datetime_format)
-        if not new_aid and affiliate_settings.SAVE_IN_SESSION:
-            if prev_aid:
-                aid_dt = session.get('_aid_dt', None)
-                if aid_dt is None:
-                    l.error('_aid_dt not found in session')
-                    session['_aid_dt'] = now.strftime(self.datetime_format)
-                else:
-                    aid_dt = datetime.strptime(aid_dt, self.datetime_format)
-                    if (now - aid_dt).seconds > affiliate_settings.SESSION_AGE:
-                        # aid expired
-                        prev_aid = None
+                    session['_aid_dt'] = now.isoformat()
+        if prev_aid and affiliate_settings.SAVE_IN_SESSION:
+            if prev_aid_dt is None:
+                l.error('_aid_dt not found in session')
+                if not new_aid:
+                    session['_aid_dt'] = now.isoformat()
+            else:
+                prev_aid_dt_obj = parse_datetime(prev_aid_dt)
+                if (now - prev_aid_dt_obj).total_seconds() > affiliate_settings.SESSION_AGE:
+                    # aid expired
+                    prev_aid = None
+                    prev_aid_dt = None
+                    if not new_aid:
                         session.pop('_aid')
                         session.pop('_aid_dt')
         request.affiliate = SimpleLazyObject(lambda: get_affiliate(request, new_aid, prev_aid, prev_aid_dt))
