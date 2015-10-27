@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-import urllib
 from datetime import timedelta
+
 from django.test import TestCase
 from django.utils import timezone
+from django.utils.http import urlencode
 from model_mommy import mommy
 from freezegun import freeze_time
+
 from affiliate.settings import PARAM_NAME, SESSION_AGE
 
 
@@ -74,4 +76,4 @@ class TestAffiliateMiddleware(TestCase):
         self.assertFalse(resp.context['request'].affiliate.exist())
 
     def get_aid_url(self, url, aid_code):
-        return '?'.join([url, urllib.urlencode({PARAM_NAME: aid_code})])
+        return '?'.join([url, urlencode({PARAM_NAME: aid_code})])

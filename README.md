@@ -29,7 +29,7 @@ Used by projects
 Requirements
 -----------
 
-- python (2.7)
+- python (2.7, 3.4)
 - django (1.6, 1.7, 1.8)
 
 

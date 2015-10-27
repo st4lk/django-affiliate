@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import urlparse
 import urllib
+from django.utils.six.moves.urllib.parse import parse_qsl, urlparse, urlunparse
 from . import settings as affiliate_settings
 try:
     from django.apps import apps
@@ -19,18 +19,18 @@ def get_affiliate_model():
 
 
 def add_affiliate_code(url, aid_code):
-    parsed = urlparse.urlparse(str(url))
-    query = dict(urlparse.parse_qsl(parsed.query))
+    parsed = urlparse(str(url))
+    query = dict(parse_qsl(parsed.query))
     query.update({affiliate_settings.PARAM_NAME: str(aid_code)})
     url_parts = list(parsed)
     url_parts[4] = urllib.urlencode(query)
-    return urlparse.urlunparse(url_parts)
+    return urlunparse(url_parts)
 
 
 def remove_affiliate_code(url):
-    parsed = urlparse.urlparse(str(url))
-    query = dict(urlparse.parse_qsl(parsed.query))
+    parsed = urlparse(str(url))
+    query = dict(parse_qsl(parsed.query))
     query.pop(affiliate_settings.PARAM_NAME, None)
     url_parts = list(parsed)
     url_parts[4] = urllib.urlencode(query)
-    return urlparse.urlunparse(url_parts)
+    return urlunparse(url_parts)
