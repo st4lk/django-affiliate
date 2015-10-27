@@ -3,11 +3,11 @@ from datetime import timedelta
 
 from django.test import TestCase
 from django.utils import timezone
-from django.utils.http import urlencode
 from model_mommy import mommy
 from freezegun import freeze_time
 
-from affiliate.settings import PARAM_NAME, SESSION_AGE
+from affiliate.settings import SESSION_AGE
+from .utils import get_aid_url, modify_settings
 
 
 class TestAffiliateMiddleware(TestCase):
@@ -17,13 +17,13 @@ class TestAffiliateMiddleware(TestCase):
         self.assertFalse(resp.context['request'].affiliate.exist())
 
     def test_bad_affiliate_code(self):
-        resp = self.client.get(self.get_aid_url('/', 123))
+        resp = self.client.get(get_aid_url('/', 123))
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(resp.context['request'].affiliate.exist())
 
     def test_affiliate_assigned(self):
         affiliate = mommy.make('affiliate.Affiliate')
-        resp = self.client.get(self.get_aid_url('/', affiliate.aid))
+        resp = self.client.get(get_aid_url('/', affiliate.aid))
         self.assertEqual(resp.status_code, 200)
         affiliate_resp = resp.context['request'].affiliate
         self.assertTrue(affiliate_resp.exist())
@@ -31,9 +31,9 @@ class TestAffiliateMiddleware(TestCase):
 
     def test_previous_affiliate_is_used(self):
         affiliate = mommy.make('affiliate.Affiliate')
-        resp = self.client.get(self.get_aid_url('/', affiliate.aid))
+        resp = self.client.get(get_aid_url('/', affiliate.aid))
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.get(self.get_aid_url('/', affiliate.aid + 100))  # invalid aid code
+        resp = self.client.get(get_aid_url('/', affiliate.aid + 100))  # invalid aid code
         self.assertEqual(resp.status_code, 200)
         affiliate_resp = resp.context['request'].affiliate
         self.assertTrue(affiliate_resp.exist())
@@ -41,7 +41,7 @@ class TestAffiliateMiddleware(TestCase):
 
     def test_affiliate_saved_in_session(self):
         affiliate = mommy.make('affiliate.Affiliate')
-        self.client.get(self.get_aid_url('/', affiliate.aid))
+        self.client.get(get_aid_url('/', affiliate.aid))
 
         # next response without aid still contains affiliate
         with freeze_time(timezone.now() + timedelta(seconds=SESSION_AGE - 1)):
@@ -54,7 +54,7 @@ class TestAffiliateMiddleware(TestCase):
 
     def test_affiliate_session_expired(self):
         affiliate = mommy.make('affiliate.Affiliate')
-        self.client.get(self.get_aid_url('/', affiliate.aid))
+        self.client.get(get_aid_url('/', affiliate.aid))
 
         # affiliate is expired
         with freeze_time(timezone.now() + timedelta(seconds=SESSION_AGE + 1)):
@@ -65,15 +65,41 @@ class TestAffiliateMiddleware(TestCase):
 
     def test_previous_affiliate_session_expired(self):
         affiliate = mommy.make('affiliate.Affiliate')
-        resp = self.client.get(self.get_aid_url('/', affiliate.aid))
+        resp = self.client.get(get_aid_url('/', affiliate.aid))
         self.assertEqual(resp.status_code, 200)
 
         # affiliate is expired
         with freeze_time(timezone.now() + timedelta(seconds=SESSION_AGE + 1)):
-            resp = self.client.get(self.get_aid_url('/', affiliate.aid + 100))  # invalid aid code
+            resp = self.client.get(get_aid_url('/', affiliate.aid + 100))  # invalid aid code
 
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(resp.context['request'].affiliate.exist())
 
-    def get_aid_url(self, url, aid_code):
-        return '?'.join([url, urlencode({PARAM_NAME: aid_code})])
+
+@modify_settings(MIDDLEWARE_CLASSES={
+    'remove': [
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+    ],
+}, INSTALLED_APPS={
+    'remove': [
+        'django.contrib.sessions'
+    ]
+})
+class TestAffiliateMiddlewareNoSession(TestCase):
+    def test_no_session_affiliate_in_url(self):
+        from affiliate import settings as affiliate_settings
+        affiliate_settings.SAVE_IN_SESSION = False
+
+        affiliate = mommy.make('affiliate.Affiliate')
+        resp = self.client.get(get_aid_url('/', affiliate.aid))
+        self.assertEqual(resp.status_code, 200)
+        affiliate_resp = resp.context['request'].affiliate
+        self.assertTrue(affiliate_resp.exist())
+        self.assertEqual(affiliate.aid, affiliate_resp.aid)
+
+        # next request can't remember previous affiliate
+        resp = self.client.get('/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(resp.context['request'].affiliate.exist())

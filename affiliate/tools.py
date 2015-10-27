@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import urllib
+from django.utils.http import urlencode
 from django.utils.six.moves.urllib.parse import parse_qsl, urlparse, urlunparse
 from . import settings as affiliate_settings
 try:
@@ -23,7 +23,7 @@ def add_affiliate_code(url, aid_code):
     query = dict(parse_qsl(parsed.query))
     query.update({affiliate_settings.PARAM_NAME: str(aid_code)})
     url_parts = list(parsed)
-    url_parts[4] = urllib.urlencode(query)
+    url_parts[4] = urlencode(query)
     return urlunparse(url_parts)
 
 
@@ -32,5 +32,5 @@ def remove_affiliate_code(url):
     query = dict(parse_qsl(parsed.query))
     query.pop(affiliate_settings.PARAM_NAME, None)
     url_parts = list(parsed)
-    url_parts[4] = urllib.urlencode(query)
+    url_parts[4] = urlencode(query)
     return urlunparse(url_parts)
