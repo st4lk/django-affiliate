@@ -20,114 +20,22 @@
             </tr>
             <tr>
                 <td>{% trans "Affiliate link" %}</td>
-                <td>{{affiliate.render_link}}</td>
+                <td>{{ affiliate_link }}</td>
                 <td></td>
             </tr>
             <tr>
                 <td>{% trans "Affiliate link for website" %}</td>
-                <td>{{affiliate.render_html_a}}</td>
-                <td>{{affiliate.render_html_a|safe}}</td>
-            </tr>
-            {% for banner in banners %}
-                <tr>
-                    <td>{% trans "Affiliate banner for website" %} ({{banner.image.width}}x{{banner.image.height}})</td>
-                    <td>{% render_banner affiliate banner autoescape=True %}</td>
-                    <td>{% render_banner affiliate banner %}</td>
-                </tr>
-            {% endfor %}
-        </table>
-
-        <h3>{% trans "Your stats" %}</h3>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <td>{% trans "Current balance" %}, {{ currency_label }}</td>
-                    <td>{% trans "Payed to you" %}, {{ currency_label }}</td>
-                    <td>{% trans "Attracted visitors payments count" %}</td>
-                    <td>{% trans "Attracted visitors payments amount" %}, {{ currency_label }}</td>
-                    <td>{% trans "Reward per transaction" %}</td>
-                </tr>
-            </thead>
-            <tr>
-                <td>{{ affiliate.balance }}</td>
-                <td>{{ affiliate.total_payed }}</td>
-                <td>{{ affiliate.total_payments_count }}</td>
-                <td>{{ affiliate.total_payments_amount }}</td>
-                <td>{{ affiliate.get_printable_reward }}</td>
+                <td>{{ '<a href="'|force_escape }}{{ affiliate_link }}{{'">Partner link</a>'|force_escape }}</td>
+                <td><a href="{{ affiliate_link }}">Partner link</a></td>
             </tr>
         </table>
-
-        <h3>{% trans "Your visitors stats" %}</h3>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <td>{% trans "Date" %}</td>
-                    <td>{% trans "Page views" %}</td>
-                    <td>{% trans "Unique visitors" %}</td>
-                    <td>{% trans "Number of payments" %}</td>
-                    <td>{% trans "Payments amount" %}, {{currency_label}}</td>
-                    <td>{% trans "Reward amount" %}, {{currency_label}}</td>
-                </tr>
-            </thead>
-            {% for vstat in visitor_stats %}
-                <tr>
-                    <td>{{ vstat.date }}</td>
-                    <td>{{ vstat.total_views }}</td>
-                    <td>{{ vstat.unique_visitors }}</td>
-                    <td>{{ vstat.payments_count }}</td>
-                    <td>{{ vstat.payments_amount }}</td>
-                    <td>{{ vstat.rewards_amount }}</td>
-                </tr>
-            {% endfor %}
-        </table>
-
-        <h3>{% trans "Your withdraw transactions" %}</h3>
-        {% if pay_requests %}
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <td>{% trans "ID" %}</td>
-                        <td>{% trans "Amount" %}, {{ currency_label }}</td>
-                        <td>{% trans "Status" %}</td>
-                        <td>{% trans "Created at" %}</td>
-                        <td>{% trans "Payed at" %}</td>
-                    </tr>
-                </thead>
-                {% for pay_request in pay_requests %}
-                    <tr class="{% if pay_request.is_done %}success{% else %}warning{% endif %}">
-                        <td>{{ pay_request.pk }}</td>
-                        <td>{{ pay_request.amount }}</td>
-                        <td>{{ pay_request.get_status_display }}</td>
-                        <td>{{ pay_request.created_at }}</td>
-                        <td>{{ pay_request.payed_at }}</td>
-                    </tr>
-                {% endfor %}
-            </table>
-        {% else %}
-            <div>{% trans "There are no payment requests made yet" %}</div>
-        {% endif %}
     {% else %}
         {% trans "Currently you don't have affiliate program. Please, enable it first." %}
     {% endif %}
 {% endblock %}
 
 {% block submit_button %}
-    {% if affiliate %}
-        {% if requested %}
-            <button class="btn btn-warning" type="submit" disabled="disabled">
-                {% trans "Payment request already sent (pending)" %}
-            </button>
-        {% elif avaliable_for_request %}
-            <button class="btn btn-success" type="submit">
-                {% trans "Request for payment" %}
-            </button>
-        {% else %}
-            <div>{% blocktrans with amount=min_request_amount %}You need minimum {{ amount }} {{currency_label }} in your balance to make a payment request{% endblocktrans %}</div>
-            <button class="btn btn-default" type="submit"  disabled="disabled">
-                {% trans "Balance is too low for payment request" %}
-            </button>
-        {% endif %}
-    {% else %}
+    {% if not affiliate %}
         <button class="btn btn-success" type="submit">
             {% trans "Create affiliate" %} &raquo;
         </button>

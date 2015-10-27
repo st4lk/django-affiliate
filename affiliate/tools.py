@@ -1,45 +1,36 @@
 # -*- coding: utf-8 -*-
-from urlparse import urlparse, parse_qs
-from urllib import urlencode
-from datetime import datetime
-from django.conf import settings
-from django.db.models.loading import get_model
+import urlparse
+import urllib
+from . import settings as affiliate_settings
+try:
+    from django.apps import apps
+    get_model = apps.get_model
+except ImportError:
+    from django.db.models.loading import get_model as django_get_model
 
-
-AFFILIATE_MODEL = settings.AFFILIATE_MODEL
-AFFILIATE_COUNT_MODEL = settings.AFFILIATE_COUNT_MODEL
+    def get_model(self, app_label, model_name=None):
+        if model_name is None:
+            app_label, model_name = app_label.split('.')
+        return django_get_model(app_label, model_name)
 
 
 def get_affiliate_model():
-    return get_model(*AFFILIATE_MODEL.split("."))
-
-
-def get_affiliatestats_model():
-    return get_model(*AFFILIATE_COUNT_MODEL.split("."))
-
-
-def get_affiliate_param_name():
-    return getattr(settings, "AFFILIATE_PARAM_NAME", 'aid')
+    return get_model(affiliate_settings.AFFILIATE_MODEL)
 
 
 def add_affiliate_code(url, aid_code):
-    parsed = urlparse(str(url))
-    params = parse_qs(parsed.query)
-    aff_param_name = get_affiliate_param_name()
-    params.update({aff_param_name: [str(aid_code)]})
-    return "?".join((parsed.path, urlencode(params, doseq=True)))
+    parsed = urlparse.urlparse(str(url))
+    query = dict(urlparse.parse_qsl(parsed.query))
+    query.update({affiliate_settings.PARAM_NAME: str(aid_code)})
+    url_parts = list(parsed)
+    url_parts[4] = urllib.urlencode(query)
+    return urlparse.urlunparse(url_parts)
 
 
 def remove_affiliate_code(url):
-    parsed = urlparse(str(url))
-    params = parse_qs(parsed.query)
-    aff_param_name = get_affiliate_param_name()
-    params.pop(aff_param_name)
-    return "?".join((parsed.path, urlencode(params, doseq=True)))
-
-
-def get_seconds_day_left(now=None):
-    now = now or datetime.now()
-    end_day = datetime(year=now.year, month=now.month, day=now.day, hour=23,
-        minute=59, second=59)
-    return (end_day-now).seconds
+    parsed = urlparse.urlparse(str(url))
+    query = dict(urlparse.parse_qsl(parsed.query))
+    query.pop(affiliate_settings.PARAM_NAME, None)
+    url_parts = list(parsed)
+    url_parts[4] = urllib.urlencode(query)
+    return urlparse.urlunparse(url_parts)

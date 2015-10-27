@@ -1,17 +1,23 @@
 # -*- coding: utf-8 -*-
-from django.views.generic import ListView
+from django.views import generic
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.views import redirect_to_login
+from affiliate.tools import get_affiliate_model
 from .models import Product
-from apps.partner.models import Affiliate
+from apps.partner.models import AffiliateTransaction
+
+Affiliate = get_affiliate_model()
 
 
-class ProductListView(ListView):
+class ProductListView(generic.ListView):
     template_name = "products/list.html"
     model = Product
     context_object_name = 'products'
 
     def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated():
+            return redirect_to_login(request.get_full_path())
         self.buy_product(request)
         return super(ProductListView, self).get(request, *args, **kwargs)
 
@@ -26,6 +32,13 @@ class ProductListView(ListView):
             product = Product.objects.get(pk=pk)
             messages.add_message(request, messages.INFO,
                 _("Product %(product)s was bought" % {"product": product.title}))
-            if request.aid:
-                affiliate = Affiliate.objects.get(aid=request.aid)
-                affiliate.reward_affiliate(product.price)
+            if request.affiliate.exist() and request.affiliate.is_active:
+                affiliate = request.affiliate
+                AffiliateTransaction.objects.create(
+                    affiliate=affiliate,
+                    product=product,
+                    price=product.price,
+                    bought_by=self.request.user,
+                    reward_amount=affiliate.reward_amount,
+                    reward_percentage=affiliate.reward_percentage,
+                    reward=affiliate.calc_affiliate_reward(product.price))
