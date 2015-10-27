@@ -48,12 +48,11 @@ class AffiliateMiddleware(object):
                 prev_aid = session.get('_aid', None)
                 prev_aid_dt = session.get('_aid_dt', None)
         now = timezone.now()
-        if request.method == 'GET':
-            new_aid = request.GET.get(affiliate_settings.PARAM_NAME, None)
-            if new_aid:
-                if affiliate_settings.SAVE_IN_SESSION:
-                    session['_aid'] = new_aid
-                    session['_aid_dt'] = now.isoformat()
+        new_aid = request.GET.get(affiliate_settings.PARAM_NAME, None)
+        if new_aid:
+            if affiliate_settings.SAVE_IN_SESSION:
+                session['_aid'] = new_aid
+                session['_aid_dt'] = now.isoformat()
         if prev_aid and affiliate_settings.SAVE_IN_SESSION:
             if prev_aid_dt is None:
                 l.error('_aid_dt not found in session')

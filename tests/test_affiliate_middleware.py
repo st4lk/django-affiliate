@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from django.test import TestCase
 from django.utils import timezone
+from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from model_mommy import mommy
 from freezegun import freeze_time
@@ -75,6 +76,15 @@ class TestAffiliateMiddleware(TestCase):
 
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(resp.context['request'].affiliate.exist())
+
+    def test_affiliate_code_in_post_request(self):
+        affiliate = mommy.make('affiliate.Affiliate')
+        resp = self.client.post(get_aid_url(reverse('users:signup'), affiliate.aid),
+            dict(username='newuser', password1='123456', password2='123456'))
+        self.assertEqual(resp.status_code, 302)
+        resp = self.client.get('/')
+        self.assertTrue(resp.context['request'].affiliate.exist())
+        self.assertEqual(resp.context['request'].affiliate.pk, affiliate.pk)
 
 
 @modify_settings(MIDDLEWARE_CLASSES={
