@@ -7,6 +7,7 @@ v0.2.0 (2015-10-27)
 - request now have lazy `affiliate` property, returns Affiliate instance (if exists)
 - django 1.7, 1.8 support
 - tests are added
+- backwards incompatible
 
 v0.1.1 (2015-01-15)
 -------------------
