@@ -49,6 +49,10 @@ class AbstractAffiliate(models.Model):
         uri = request.build_absolute_uri(location)
         return add_affiliate_code(uri, self.pk)
 
+    def build_affiliate_url(self, location=None):
+        location = location or affiliate_settings.DEFAULT_LINK
+        return add_affiliate_code(location, self.pk)
+
     def calc_affiliate_reward(self, total_price):
         if self.reward_percentage:
             return total_price * (self.reward_amount / D('100'))
