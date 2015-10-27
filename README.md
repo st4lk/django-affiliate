@@ -18,6 +18,14 @@ Visitor goes to site with affiliate code:
 This code is saved in his cookies (also another way is supported: keep aid=12345 at every url).
 Now each request object has property `request.affiliate`, so you can access to affiliate, that attract current visitor, and therefore reward him at needed event.
 
+Property `request.affiliate` is lazy. To check, that affiliate exist, do this:
+
+        if request.affiliate.exist():
+            # optionally check, that he is active:
+            if request.affiliate.is_active:
+                # request comes from affiliate with code 
+                # affiliate.aid
+
 You can find example project in this repository.
 
 Used by projects
