@@ -2,7 +2,7 @@ from decimal import Decimal as D
 from django.test import TestCase
 from model_mommy import mommy
 
-from affiliate.tools import get_affiliate_model
+from affiliate.utils import get_affiliate_model
 
 Affiliate = get_affiliate_model()
 

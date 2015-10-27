@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from .tools import get_model
+from .utils import get_model
 from . import settings as affiliate_settings
 
 Affiliate = get_model(affiliate_settings.AFFILIATE_MODEL)

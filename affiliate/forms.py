@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from .tools import get_affiliate_model
+from .utils import get_affiliate_model
 Affiliate = get_affiliate_model()
 
 

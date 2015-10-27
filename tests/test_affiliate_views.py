@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from model_mommy import mommy
 
-from affiliate.tools import get_affiliate_model
+from affiliate.utils import get_affiliate_model
 
 Affiliate = get_affiliate_model()
 

@@ -3,7 +3,7 @@ from django.views import generic
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.views import redirect_to_login
-from affiliate.tools import get_affiliate_model
+from affiliate.utils import get_affiliate_model
 from .models import Product
 from apps.partner.models import AffiliateTransaction
 

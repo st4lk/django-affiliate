@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 from django.conf import settings
 from . import settings as affiliate_settings
-from .tools import add_affiliate_code
+from .utils import add_affiliate_code
 
 l = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from .models import NoAffiliate
-from .tools import get_model
+from .utils import get_model
 
 l = logging.getLogger(__name__)
 

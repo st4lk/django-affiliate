@@ -3,7 +3,7 @@ from django.views import generic
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.messages.views import SuccessMessageMixin
 from .forms import AffiliateCreateForm
-from .tools import get_affiliate_model
+from .utils import get_affiliate_model
 
 
 class AffiliateBaseView(SuccessMessageMixin, generic.CreateView):
