@@ -1,3 +1,4 @@
 django-affiliate
 django-crispy-forms==1.4.0
 Pillow
+# south # when django<1.7

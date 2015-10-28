@@ -2,8 +2,12 @@
 from django.conf import settings
 from decimal import Decimal as D
 
+# Ensure this attribute exists to avoid migration issues in Django 1.7
+if not hasattr(settings, 'AFFILIATE_AFFILIATE_MODEL'):
+    setattr(settings, 'AFFILIATE_AFFILIATE_MODEL', 'affiliate.Affiliate')
 
-AFFILIATE_MODEL = getattr(settings, 'AFFILIATE_AFFILIATE_MODEL', 'affiliate.Affiliate')
+
+AFFILIATE_MODEL = settings.AFFILIATE_AFFILIATE_MODEL
 PARAM_NAME = getattr(settings, 'AFFILIATE_PARAM_NAME', 'aid')
 REWARD_AMOUNT = getattr(settings, 'AFFILIATE_REWARD_AMOUNT', 10)
 REWARD_PERCENTAGE = getattr(settings, 'AFFILIATE_REWARD_PERCENTAGE', True)

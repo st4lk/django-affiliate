@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from os.path import join
+from django import VERSION as DJANGO_VERSION
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -49,6 +50,9 @@ INSTALLED_APPS = (
     'apps.partner',
     'apps.products',
 )
+
+if DJANGO_VERSION < (1, 7):
+    INSTALLED_APPS += ('south', )
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -141,7 +145,7 @@ LOGIN_URL = "/users/signin/"
 EMAIL_HOST = "localhost"
 EMAIL_PORT = 1025
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, '../debug/emails')
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, '/tmp')
 SITE_EMAIL = 'no-reply@affiliate.com'
 
 
@@ -173,6 +177,13 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'unique-snowflake'
     }
+}
+
+# just in case south is used
+SOUTH_MIGRATION_MODULES = {
+    'affiliate': 'affiliate.south_migrations',
+    'partner': 'apps.partner.south_migrations',
+    'products': 'apps.products.south_migrations',
 }
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#logging
