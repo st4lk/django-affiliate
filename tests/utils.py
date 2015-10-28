@@ -1,9 +1,9 @@
 from django.utils.http import urlencode
-from affiliate.settings import PARAM_NAME
+from affiliate import app_settings
 
 
 def get_aid_url(url, aid_code):
-    return '?'.join([url, urlencode({PARAM_NAME: aid_code})])
+    return '?'.join([url, urlencode({app_settings.PARAM_NAME: aid_code})])
 
 
 try:

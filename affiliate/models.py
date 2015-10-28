@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 from django.conf import settings
-from . import settings as affiliate_settings
+from . import app_settings
 from .utils import add_affiliate_code
 
 l = logging.getLogger(__name__)
@@ -21,9 +21,9 @@ class AffiliateManager(models.Manager):
 class AbstractAffiliate(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name=_("User"))
     reward_amount = models.DecimalField(_("reward amount"), max_digits=5,
-        decimal_places=2, default=affiliate_settings.REWARD_AMOUNT)
+        decimal_places=2, default=app_settings.REWARD_AMOUNT)
     reward_percentage = models.BooleanField(_('in percent'),
-        default=affiliate_settings.REWARD_PERCENTAGE)
+        default=app_settings.REWARD_PERCENTAGE)
     is_active = models.BooleanField(_('active'), default=True)
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
 
@@ -45,12 +45,12 @@ class AbstractAffiliate(models.Model):
         return True
 
     def build_absolute_affiliate_uri(self, request, location=None):
-        location = location or affiliate_settings.DEFAULT_LINK
+        location = location or app_settings.DEFAULT_LINK
         uri = request.build_absolute_uri(location)
         return add_affiliate_code(uri, self.pk)
 
     def build_affiliate_url(self, location=None):
-        location = location or affiliate_settings.DEFAULT_LINK
+        location = location or app_settings.DEFAULT_LINK
         return add_affiliate_code(location, self.pk)
 
     def calc_affiliate_reward(self, total_price):
