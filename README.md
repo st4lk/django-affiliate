@@ -20,7 +20,7 @@ Now each request object has property `request.affiliate`, so you can access to a
 
 Property `request.affiliate` is lazy. To check, that affiliate exist, do this:
 
-        if request.affiliate.exist():
+        if request.affiliate.exists():
             # optionally check, that he is active:
             if request.affiliate.is_active:
                 # request comes from affiliate with code 
@@ -91,7 +91,7 @@ Quick start
 
             def form_valid(self.form):
                 product = self.get_product()
-                if self.request.affiliate.exist() and self.request.affiliate.is_active:
+                if self.request.affiliate.exists() and self.request.affiliate.is_active:
                     # reward affiliate here, your custom logic is here
                     Transaction.objects.create(
                         user=self.affiliate.user,

@@ -20,6 +20,7 @@ class AffiliateManager(models.Manager):
 
 class AbstractAffiliate(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name=_("User"))
+    # TODO increase places and digits
     reward_amount = models.DecimalField(_("reward amount"), max_digits=5,
         decimal_places=2, default=app_settings.REWARD_AMOUNT)
     reward_percentage = models.BooleanField(_('in percent'),
@@ -41,7 +42,7 @@ class AbstractAffiliate(models.Model):
     def aid(self):
         return self.pk
 
-    def exist(self):
+    def exists(self):
         return True
 
     def build_absolute_affiliate_uri(self, request, location=None):
@@ -63,7 +64,7 @@ class AbstractAffiliate(models.Model):
 class NoAffiliate(object):
     is_active = False
 
-    def exist(self):
+    def exists(self):
         return False
 
 

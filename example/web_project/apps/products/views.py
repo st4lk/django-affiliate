@@ -32,7 +32,7 @@ class ProductListView(generic.ListView):
             product = Product.objects.get(pk=pk)
             messages.add_message(request, messages.INFO,
                 _("Product %(product)s was bought" % {"product": product.title}))
-            if request.affiliate.exist() and request.affiliate.is_active:
+            if request.affiliate.exists() and request.affiliate.is_active:
                 affiliate = request.affiliate
                 AffiliateTransaction.objects.create(
                     affiliate=affiliate,

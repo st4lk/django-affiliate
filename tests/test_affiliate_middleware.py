@@ -16,19 +16,19 @@ class TestAffiliateMiddleware(TestCase):
     def test_no_affiliate_in_url(self):
         resp = self.client.get('/')
         self.assertEqual(resp.status_code, 200)
-        self.assertFalse(resp.context['request'].affiliate.exist())
+        self.assertFalse(resp.context['request'].affiliate.exists())
 
     def test_bad_affiliate_code(self):
         resp = self.client.get(get_aid_url('/', 123))
         self.assertEqual(resp.status_code, 200)
-        self.assertFalse(resp.context['request'].affiliate.exist())
+        self.assertFalse(resp.context['request'].affiliate.exists())
 
     def test_affiliate_assigned(self):
         affiliate = mommy.make('affiliate.Affiliate')
         resp = self.client.get(get_aid_url('/', affiliate.aid))
         self.assertEqual(resp.status_code, 200)
         affiliate_resp = resp.context['request'].affiliate
-        self.assertTrue(affiliate_resp.exist())
+        self.assertTrue(affiliate_resp.exists())
         self.assertEqual(affiliate.aid, affiliate_resp.aid)
 
     def test_previous_affiliate_is_used(self):
@@ -38,7 +38,7 @@ class TestAffiliateMiddleware(TestCase):
         resp = self.client.get(get_aid_url('/', affiliate.aid + 100))  # invalid aid code
         self.assertEqual(resp.status_code, 200)
         affiliate_resp = resp.context['request'].affiliate
-        self.assertTrue(affiliate_resp.exist())
+        self.assertTrue(affiliate_resp.exists())
         self.assertEqual(affiliate.aid, affiliate_resp.aid)
 
     def test_affiliate_saved_in_session(self):
@@ -51,7 +51,7 @@ class TestAffiliateMiddleware(TestCase):
 
         self.assertEqual(resp.status_code, 200)
         affiliate_resp = resp.context['request'].affiliate
-        self.assertTrue(affiliate_resp.exist())
+        self.assertTrue(affiliate_resp.exists())
         self.assertEqual(affiliate.aid, affiliate_resp.aid)
 
     def test_affiliate_session_expired(self):
@@ -63,7 +63,7 @@ class TestAffiliateMiddleware(TestCase):
             resp = self.client.get('/')
 
         self.assertEqual(resp.status_code, 200)
-        self.assertFalse(resp.context['request'].affiliate.exist())
+        self.assertFalse(resp.context['request'].affiliate.exists())
 
     def test_previous_affiliate_session_expired(self):
         affiliate = mommy.make('affiliate.Affiliate')
@@ -75,7 +75,7 @@ class TestAffiliateMiddleware(TestCase):
             resp = self.client.get(get_aid_url('/', affiliate.aid + 100))  # invalid aid code
 
         self.assertEqual(resp.status_code, 200)
-        self.assertFalse(resp.context['request'].affiliate.exist())
+        self.assertFalse(resp.context['request'].affiliate.exists())
 
     def test_affiliate_code_in_post_request(self):
         affiliate = mommy.make('affiliate.Affiliate')
@@ -83,7 +83,7 @@ class TestAffiliateMiddleware(TestCase):
             dict(username='newuser', password1='123456', password2='123456'))
         self.assertEqual(resp.status_code, 302)
         resp = self.client.get('/')
-        self.assertTrue(resp.context['request'].affiliate.exist())
+        self.assertTrue(resp.context['request'].affiliate.exists())
         self.assertEqual(resp.context['request'].affiliate.pk, affiliate.pk)
 
 
@@ -106,13 +106,13 @@ class TestAffiliateMiddlewareNoSession(TestCase):
         resp = self.client.get(get_aid_url('/', affiliate.aid))
         self.assertEqual(resp.status_code, 200)
         affiliate_resp = resp.context['request'].affiliate
-        self.assertTrue(affiliate_resp.exist())
+        self.assertTrue(affiliate_resp.exists())
         self.assertEqual(affiliate.aid, affiliate_resp.aid)
 
         # next request can't remember previous affiliate
         resp = self.client.get('/')
         self.assertEqual(resp.status_code, 200)
-        self.assertFalse(resp.context['request'].affiliate.exist())
+        self.assertFalse(resp.context['request'].affiliate.exists())
 
     def test_no_session_exception_raised(self):
         app_settings.SAVE_IN_SESSION = True
