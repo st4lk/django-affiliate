@@ -1,7 +1,7 @@
 django-affiliate release notes
 ==============================
 
-v0.2.0 (2015-10-27)
+v0.2.0 (2015-10-29)
 -------------------
 - only affiliate model defined by package
 - request now have lazy `affiliate` property, returns Affiliate instance (if exists)

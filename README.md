@@ -8,7 +8,7 @@ Affiliate system to reward partners with their visitors payments.
 Contains abstract models with basic functionality, so it is easy
 to subclass them and add your custom logic and relations.
 
-**Note**: version 0.2.1 is backwards incompatible with previous versions.
+**Note**: version 0.2.0 is backwards incompatible with previous versions.
 
 
 Example
