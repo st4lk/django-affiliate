@@ -67,8 +67,9 @@ class NoAffiliate(object):
     def exists(self):
         return False
 
+if not app_settings.ABSTRACT_ONLY:
 
-class Affiliate(AbstractAffiliate):
+    class Affiliate(AbstractAffiliate):
 
-    class Meta:
-        swappable = 'AFFILIATE_AFFILIATE_MODEL'
+        class Meta:
+            swappable = 'AFFILIATE_AFFILIATE_MODEL'

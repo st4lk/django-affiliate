@@ -14,6 +14,7 @@ REWARD_PERCENTAGE = getattr(settings, 'AFFILIATE_REWARD_PERCENTAGE', True)
 SAVE_IN_SESSION = getattr(settings, 'AFFILIATE_SAVE_IN_SESSION', True)
 SESSION_AGE = getattr(settings, 'AFFILIATE_SESSION_AGE', 5 * 24 * 60 * 60)
 DEFAULT_LINK = getattr(settings, 'AFFILIATE_DEFAULT_LINK', '/')
+ABSTRACT_ONLY = getattr(settings, 'AFFILIATE_ABSTRACT_ONLY', False)
 # deprecated
 BANNER_FOLDER = getattr(settings, 'AFFILIATE_BANNER_PATH', 'affiliate')
 START_AID = getattr(settings, 'AFFILIATE_START_AID', "1000")
