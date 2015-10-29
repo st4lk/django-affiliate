@@ -124,10 +124,10 @@ Configuration
 
 Define in settings.py
 
-- AFFILIATE_AFFILIATE_MODEL - the model to use to represent an Affiliate, similar to [AUTH_USER_MODEL](https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-AUTH_USER_MODEL). Default `'affiliate.Affiliate'`.
+- AFFILIATE_AFFILIATE_MODEL - the model to use to represent an Affiliate, similar to [AUTH_USER_MODEL](https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-AUTH_USER_MODEL). Mandatory, must be explicitly defined.
 - AFFILIATE_PARAM_NAME - name of affiliate GET parameter in url. Default `'aid'`.
 - AFFILIATE_REWARD_AMOUNT - default affiliate reward amount. Can be set as string (`'5.55'`) or as int (`10`). Default `10`.
-- AFFILIATE_REWARD_PERCENTAGE - if True, that `AFFILIATE_REWARD_AMOUNT` is treated as percentage. Otherwise as exact amount of money. Default `True`.
+- AFFILIATE_REWARD_PERCENTAGE - if True, `AFFILIATE_REWARD_AMOUNT` is treated as percentage. Otherwise as exact amount of money. Default `True`.
 - AFFILIATE_SAVE_IN_SESSION - save affiliate id in session or not. Default `True`.
 - AFFILIATE_SESSION_AGE - how long keep affiliate id in session, in seconds. Default `5 * 24 * 60 * 60` seconds (5 days).
-- AFFILIATE_DEFAULT_LINK - default link, that will be used by Affiliate.build_absolute_affiliate_uri. Default `'/'`.
+- AFFILIATE_DEFAULT_LINK - default link, that will be used by `Affiliate.build_absolute_affiliate_uri` and `.build_affiliate_url`. Default `'/'`.
