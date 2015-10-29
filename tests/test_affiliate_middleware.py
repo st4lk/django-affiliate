@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
+from django.conf import settings
 from model_mommy import mommy
 from freezegun import freeze_time
 
@@ -24,7 +25,7 @@ class TestAffiliateMiddleware(TestCase):
         self.assertFalse(resp.context['request'].affiliate.exists())
 
     def test_affiliate_assigned(self):
-        affiliate = mommy.make('affiliate.Affiliate')
+        affiliate = mommy.make(settings.AFFILIATE_AFFILIATE_MODEL)
         resp = self.client.get(get_aid_url('/', affiliate.aid))
         self.assertEqual(resp.status_code, 200)
         affiliate_resp = resp.context['request'].affiliate
@@ -32,7 +33,7 @@ class TestAffiliateMiddleware(TestCase):
         self.assertEqual(affiliate.aid, affiliate_resp.aid)
 
     def test_previous_affiliate_is_used(self):
-        affiliate = mommy.make('affiliate.Affiliate')
+        affiliate = mommy.make(settings.AFFILIATE_AFFILIATE_MODEL)
         resp = self.client.get(get_aid_url('/', affiliate.aid))
         self.assertEqual(resp.status_code, 200)
         resp = self.client.get(get_aid_url('/', affiliate.aid + 100))  # invalid aid code
@@ -42,7 +43,7 @@ class TestAffiliateMiddleware(TestCase):
         self.assertEqual(affiliate.aid, affiliate_resp.aid)
 
     def test_affiliate_saved_in_session(self):
-        affiliate = mommy.make('affiliate.Affiliate')
+        affiliate = mommy.make(settings.AFFILIATE_AFFILIATE_MODEL)
         self.client.get(get_aid_url('/', affiliate.aid))
 
         # next response without aid still contains affiliate
@@ -55,7 +56,7 @@ class TestAffiliateMiddleware(TestCase):
         self.assertEqual(affiliate.aid, affiliate_resp.aid)
 
     def test_affiliate_session_expired(self):
-        affiliate = mommy.make('affiliate.Affiliate')
+        affiliate = mommy.make(settings.AFFILIATE_AFFILIATE_MODEL)
         self.client.get(get_aid_url('/', affiliate.aid))
 
         # affiliate is expired
@@ -66,7 +67,7 @@ class TestAffiliateMiddleware(TestCase):
         self.assertFalse(resp.context['request'].affiliate.exists())
 
     def test_previous_affiliate_session_expired(self):
-        affiliate = mommy.make('affiliate.Affiliate')
+        affiliate = mommy.make(settings.AFFILIATE_AFFILIATE_MODEL)
         resp = self.client.get(get_aid_url('/', affiliate.aid))
         self.assertEqual(resp.status_code, 200)
 
@@ -78,7 +79,7 @@ class TestAffiliateMiddleware(TestCase):
         self.assertFalse(resp.context['request'].affiliate.exists())
 
     def test_affiliate_code_in_post_request(self):
-        affiliate = mommy.make('affiliate.Affiliate')
+        affiliate = mommy.make(settings.AFFILIATE_AFFILIATE_MODEL)
         resp = self.client.post(get_aid_url(reverse('users:signup'), affiliate.aid),
             dict(username='newuser', password1='123456', password2='123456'))
         self.assertEqual(resp.status_code, 302)
@@ -102,7 +103,7 @@ class TestAffiliateMiddlewareNoSession(TestCase):
     def test_no_session_affiliate_in_url(self):
         app_settings.SAVE_IN_SESSION = False
 
-        affiliate = mommy.make('affiliate.Affiliate')
+        affiliate = mommy.make(settings.AFFILIATE_AFFILIATE_MODEL)
         resp = self.client.get(get_aid_url('/', affiliate.aid))
         self.assertEqual(resp.status_code, 200)
         affiliate_resp = resp.context['request'].affiliate
@@ -117,6 +118,6 @@ class TestAffiliateMiddlewareNoSession(TestCase):
     def test_no_session_exception_raised(self):
         app_settings.SAVE_IN_SESSION = True
 
-        affiliate = mommy.make('affiliate.Affiliate')
+        affiliate = mommy.make(settings.AFFILIATE_AFFILIATE_MODEL)
         with self.assertRaises(ImproperlyConfigured):
             self.client.get(get_aid_url('/', affiliate.aid))

@@ -8,10 +8,21 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding model 'Affiliate'
+        db.create_table(u'partner_affiliate', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True)),
+            ('reward_amount', self.gf('django.db.models.fields.DecimalField')(default=10, max_digits=16, decimal_places=5)),
+            ('reward_percentage', self.gf('django.db.models.fields.BooleanField')(default=True)),
+            ('is_active', self.gf('django.db.models.fields.BooleanField')(default=True)),
+            ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+        ))
+        db.send_create_signal(u'partner', ['Affiliate'])
+
         # Adding model 'AffiliateTransaction'
         db.create_table(u'partner_affiliatetransaction', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('affiliate', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['affiliate.Affiliate'])),
+            ('affiliate', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['partner.Affiliate'])),
             ('product', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['products.Product'])),
             ('price', self.gf('django.db.models.fields.DecimalField')(max_digits=5, decimal_places=2)),
             ('bought_by', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
@@ -24,20 +35,14 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+        # Deleting model 'Affiliate'
+        db.delete_table(u'partner_affiliate')
+
         # Deleting model 'AffiliateTransaction'
         db.delete_table(u'partner_affiliatetransaction')
 
 
     models = {
-        u'affiliate.affiliate': {
-            'Meta': {'object_name': 'Affiliate'},
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'reward_amount': ('django.db.models.fields.DecimalField', [], {'default': '10', 'max_digits': '5', 'decimal_places': '2'}),
-            'reward_percentage': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'})
-        },
         u'auth.group': {
             'Meta': {'object_name': 'Group'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -74,9 +79,18 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
+        u'partner.affiliate': {
+            'Meta': {'object_name': 'Affiliate'},
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'reward_amount': ('django.db.models.fields.DecimalField', [], {'default': '10', 'max_digits': '16', 'decimal_places': '5'}),
+            'reward_percentage': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'})
+        },
         u'partner.affiliatetransaction': {
             'Meta': {'object_name': 'AffiliateTransaction'},
-            'affiliate': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['affiliate.Affiliate']"}),
+            'affiliate': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['partner.Affiliate']"}),
             'bought_by': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),

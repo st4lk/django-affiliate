@@ -62,7 +62,7 @@ Quick start
             'affiliate.middleware.AffiliateMiddleware',
         )
 
-4. [Optional] Define your custom affiliate model (similar to custom user model):
+4. Define your custom affiliate model (similar to custom user model):
 
         # our_app/models.py
         from django.db import models
@@ -70,14 +70,23 @@ Quick start
 
 
         class Affiliate(AbstractAffiliate):
-            some_field = models.CharField()
+            pass  # or add some your custom fields here
 
         # settngs.py
         AFFILIATE_AFFILIATE_MODEL = 'our_app.Affiliate'
 
 5. Create tables
 
+        # django <= 1.6
         python manage.py syncdb
+
+        # django <= 1.6 & south
+        python manage.py schemamigration our_app --auto
+        python manage.py migrate our_app
+
+        # django >= 1.7
+        python manage.py makemigrations our_app
+        python manage.py migrate our_app
 
 6. Finally, reward affiliate
 

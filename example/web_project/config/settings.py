@@ -172,19 +172,14 @@ USE_TZ = True
 
 DEFAULT_IMAGE = STATIC_URL + 'images/no-image.png'
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake'
-    }
-}
-
 # just in case south is used
 SOUTH_MIGRATION_MODULES = {
     'affiliate': 'affiliate.south_migrations',
     'partner': 'apps.partner.south_migrations',
     'products': 'apps.products.south_migrations',
 }
+
+AFFILIATE_AFFILIATE_MODEL = 'partner.Affiliate'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#logging
 # A sample logging configuration. The only tangible logging

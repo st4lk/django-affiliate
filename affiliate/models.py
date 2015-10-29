@@ -60,16 +60,13 @@ class AbstractAffiliate(models.Model):
         else:
             return self.reward_amount
 
+    @property
+    def quantized_reward_amount(self):
+        return self.reward_amount.quantize(D('0.01'))
+
 
 class NoAffiliate(object):
     is_active = False
 
     def exists(self):
         return False
-
-if not app_settings.ABSTRACT_ONLY:
-
-    class Affiliate(AbstractAffiliate):
-
-        class Meta:
-            swappable = 'AFFILIATE_AFFILIATE_MODEL'
