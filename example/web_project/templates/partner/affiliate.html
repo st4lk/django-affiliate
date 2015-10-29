@@ -15,7 +15,7 @@
             </thead>
             <tr>
                 <td>{% trans "Affiliate code" %}</td>
-                <td>{{affiliate.aid}}</td>
+                <td>{{ affiliate.aid }}</td>
                 <td></td>
             </tr>
             <tr>
@@ -25,8 +25,8 @@
             </tr>
             <tr>
                 <td>{% trans "Affiliate link for website" %}</td>
-                <td>{{ '<a href="'|force_escape }}{{ affiliate_link }}{{'">Partner link</a>'|force_escape }}</td>
-                <td><a href="{{ affiliate_link }}">Partner link</a></td>
+                <td>{{ '<a href="'|force_escape }}{{ affiliate_link }}{{'">'|force_escape }}{% trans "Partner link" %}{{'</a>'|force_escape }}</td>
+                <td><a href="{{ affiliate_link }}">{% trans 'Partner link' %}</a></td>
             </tr>
         </table>
     {% else %}
