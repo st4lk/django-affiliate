@@ -12,7 +12,7 @@ class Migration(SchemaMigration):
         db.create_table(u'affiliate_affiliate', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True)),
-            ('reward_amount', self.gf('django.db.models.fields.DecimalField')(default=10, max_digits=5, decimal_places=2)),
+            ('reward_amount', self.gf('django.db.models.fields.DecimalField')(default=10, max_digits=16, decimal_places=5)),
             ('reward_percentage', self.gf('django.db.models.fields.BooleanField')(default=True)),
             ('is_active', self.gf('django.db.models.fields.BooleanField')(default=True)),
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
@@ -31,7 +31,7 @@ class Migration(SchemaMigration):
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'reward_amount': ('django.db.models.fields.DecimalField', [], {'default': '10', 'max_digits': '5', 'decimal_places': '2'}),
+            'reward_amount': ('django.db.models.fields.DecimalField', [], {'default': '10', 'max_digits': '16', 'decimal_places': '5'}),
             'reward_percentage': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'})
         },

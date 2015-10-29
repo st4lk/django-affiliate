@@ -30,7 +30,7 @@ else:
                 name='Affiliate',
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                    ('reward_amount', models.DecimalField(default=10, verbose_name='reward amount', max_digits=5, decimal_places=2)),
+                    ('reward_amount', models.DecimalField(default=10, verbose_name='reward amount', max_digits=16, decimal_places=5)),
                     ('reward_percentage', models.BooleanField(default=True, verbose_name='in percent')),
                     ('is_active', models.BooleanField(default=True, verbose_name='active')),
                     ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='created at')),
