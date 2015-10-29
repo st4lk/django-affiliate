@@ -1,2 +1,4 @@
 include README.md
+include HISTORY.md
 include requirements.txt
+recursive-include affiliate
