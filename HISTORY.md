@@ -1,6 +1,10 @@
 django-affiliate release notes
 ==============================
 
+v0.2.1 (2015-10-29)
+-------------------
+- add translations to pypi
+
 v0.2.0 (2015-10-29)
 -------------------
 - only affiliate model defined by package
