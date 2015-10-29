@@ -19,8 +19,7 @@ class AffiliateManager(models.Manager):
 
 
 class AbstractAffiliate(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name=_("User"))
-    # TODO increase places and digits
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, verbose_name=_("user"))
     reward_amount = models.DecimalField(_("reward amount"), max_digits=16,
         decimal_places=5, default=app_settings.REWARD_AMOUNT)
     reward_percentage = models.BooleanField(_('in percent'),
@@ -32,8 +31,8 @@ class AbstractAffiliate(models.Model):
 
     class Meta:
         abstract = True
-        verbose_name = _("Affiliate")
-        verbose_name_plural = _("Affiliates")
+        verbose_name = _("affiliate")
+        verbose_name_plural = _("affiliates")
 
     def __str__(self):
         return six.text_type(self.aid)
