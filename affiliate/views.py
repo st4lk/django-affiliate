@@ -2,16 +2,25 @@
 from django.views import generic
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.decorators import login_required
 from .forms import AffiliateCreateForm
 from .utils import get_affiliate_model
 
 
-class AffiliateBaseView(SuccessMessageMixin, generic.CreateView):
+class LoginRequiredMixin(object):
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
+        return login_required(view)
+
+
+class AffiliateBaseView(SuccessMessageMixin, LoginRequiredMixin, generic.CreateView):
     """
     Probably you need to redefine some methods here to respect
     your custom Affiliate model.
     """
     template_name = "partner/affiliate.html"
+    form_class = AffiliateCreateForm
 
     def get_affiliate_banner_model(self):
         raise NotImplementedError()
@@ -21,9 +30,6 @@ class AffiliateBaseView(SuccessMessageMixin, generic.CreateView):
         if not hasattr(self, '_affiliate'):
             self._affiliate = get_affiliate_model().objects.filter(user=self.request.user).first()
         return self._affiliate
-
-    def get_form_class(self):
-        return AffiliateCreateForm
 
     def get_form_kwargs(self):
         kwargs = super(AffiliateBaseView, self).get_form_kwargs()
