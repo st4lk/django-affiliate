@@ -5,7 +5,8 @@
 .tox/
 *.egg-info
 dist/
-README.md
+HISTORY.rst
+README.rst
 md_to_rst.sh
 generate_rst.py
 build/
@@ -21,3 +22,5 @@ example/web_project/media/*
 !example/web_project/media/.gitkeep
 example/debug/emails/*
 !example/debug/emails/.gitkeep
+.cache/
+htmlcov/

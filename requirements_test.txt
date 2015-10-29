@@ -1,0 +1,6 @@
+pytest-django
+model-mommy
+freezegun
+coverage
+tox>=1.7.0
+mock

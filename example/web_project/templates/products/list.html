@@ -24,7 +24,7 @@
                     <td><img src="{{ product.get_image_url }}" alt="{{ product.title }}" class="img-rounded"></td>
                     <td>{{ product.title }}</td>
                     <td>{{ product.description }}</td>
-                    <td>{{ product.price }} {{ default_currency }}</td>
+                    <td>{{ product.price }} USD</td>
                     <td><input type="submit" class="btn btn-success" name="product_{{product.pk}}", value="Buy"/></td>
                 </tr>
             {% endfor %}

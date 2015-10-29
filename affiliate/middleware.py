@@ -1,107 +1,70 @@
-from datetime import datetime
 import logging
 
-from django.conf import settings
-from django.http import HttpResponseRedirect
-from django.core.cache import get_cache
+from . import app_settings
 from django.core.exceptions import ImproperlyConfigured
-from .tools import get_affiliate_param_name, remove_affiliate_code,\
-    get_seconds_day_left, get_affiliate_model, get_affiliatestats_model
-from relish.helpers.request import get_client_ip
+from django.utils.functional import SimpleLazyObject
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+
+from .models import NoAffiliate
+from .utils import get_model
 
 l = logging.getLogger(__name__)
 
 
-AFFILIATE_NAME = get_affiliate_param_name()
-AFFILIATE_SESSION = getattr(settings, 'AFFILIATE_SESSION', True)
-AFFILIATE_SESSION_AGE = getattr(settings, 'AFFILIATE_SESSION_AGE', 5 * 24 * 60 * 60)
-AFFILIATE_SKIP_PATH = getattr(settings, 'AFFILIATE_SKIP_PATH_STARTS', [])
-AFFILIATE_ALLOW_MISSING_SESSION = getattr(settings, 'AFFILIATE_ALLOW_MISSING_SESSION', False)
+AffiliateModel = get_model(app_settings.AFFILIATE_MODEL)
 
-C_PFX = 'a_'
-
-AffiliateModel = get_affiliate_model()
-AffiliateModelStats = get_affiliatestats_model()
+def get_affiliate(request, new_aid, prev_aid, prev_aid_dt):
+    if not hasattr(request, '_cached_affiliate'):
+        affiliate = AffiliateModel.objects.filter(pk=new_aid).first()
+        if affiliate is None or not affiliate.is_active:
+            prev_affiliate = None
+            if prev_aid:
+                prev_affiliate = AffiliateModel.objects.filter(pk=prev_aid).first()
+            if prev_affiliate is None or not prev_affiliate.is_active:
+                affiliate = affiliate or prev_affiliate or NoAffiliate()
+            else:
+                affiliate = prev_affiliate
+                if app_settings.SAVE_IN_SESSION:
+                    request.session['_aid'] = prev_aid
+                    if prev_aid_dt:
+                        request.session['_aid_dt'] = prev_aid_dt
+        request._cached_affiliate = affiliate
+    return request._cached_affiliate
 
 
 class AffiliateMiddleware(object):
-    datetime_format = '%Y-%m-%d %H:%M:%S'
 
     def process_request(self, request):
-        aid = None
-        session = getattr(request, 'session', None)
-        if not session:
-            if AFFILIATE_ALLOW_MISSING_SESSION:
-                l.warning("session not set for request")
-                return
+        new_aid, prev_aid, prev_aid_dt = None, None, None
+        if app_settings.SAVE_IN_SESSION:
+            session = getattr(request, 'session', None)
+            if not session:
+                raise ImproperlyConfigured(
+                    "session attribute should be set for request. Please add "
+                    "'django.contrib.sessions.middleware.SessionMiddleware' "
+                    "to your MIDDLEWARE_CLASSES")
+            elif app_settings.SAVE_IN_SESSION:
+                prev_aid = session.get('_aid', None)
+                prev_aid_dt = session.get('_aid_dt', None)
+        now = timezone.now()
+        new_aid = request.GET.get(app_settings.PARAM_NAME, None)
+        if new_aid:
+            if app_settings.SAVE_IN_SESSION:
+                session['_aid'] = new_aid
+                session['_aid_dt'] = now.isoformat()
+        if prev_aid and app_settings.SAVE_IN_SESSION:
+            if prev_aid_dt is None:
+                l.error('_aid_dt not found in session')
+                if not new_aid:
+                    session['_aid_dt'] = now.isoformat()
             else:
-                raise ImproperlyConfigured("session attribute should be set for request. Please add 'django.contrib.sessions.middleware.SessionMiddleware' to your MIDDLEWARE_CLASSES")
-        now = datetime.now()
-        if request.method == 'GET':
-            aid = request.GET.get(AFFILIATE_NAME, None)
-            if aid:
-                request.aid = aid
-                if AFFILIATE_SESSION:
-                    session['aid'] = aid
-                    session['aid_dt'] = now.strftime(self.datetime_format)
-                    url = remove_affiliate_code(request.get_full_path())
-                    return HttpResponseRedirect(url)
-        if not aid and AFFILIATE_SESSION:
-            aid = session.get('aid', None)
-            if aid:
-                aid_dt = session.get('aid_dt', None)
-                if aid_dt is None:
-                    l.error('aid_dt not found in session')
-                else:
-                    aid_dt = datetime.strptime(aid_dt, self.datetime_format)
-                    if (now - aid_dt).seconds > AFFILIATE_SESSION_AGE:
-                        # aid expired
-                        aid = None
-                        session.pop('aid')
-                        session.pop('aid_dt')
-        request.aid = aid
-
-    def process_response(self, request, response):
-        aid = getattr(request, "aid", None)
-        if not aid:
-            message = "aid not set"
-            if AFFILIATE_ALLOW_MISSING_SESSION:
-                l.warning(message)
-            else:
-                l.error(message)
-        elif response.status_code == 200 and self.is_track_path(request.path):
-            now = datetime.now()
-            ip = get_client_ip(request)
-            cache = get_cache('default')
-            c_key = "".join((C_PFX, aid))
-            ip_new, aid_ip_pool = self.is_new_ip(c_key, cache, ip)
-            if ip_new:
-                aid_ip_pool.add(ip)
-                timeout = get_seconds_day_left(now)
-                cache.set(c_key, aid_ip_pool, timeout)
-            nb = AffiliateModelStats.objects.incr_count_views(aid, now,
-                ip_new=ip_new)
-            if not nb:
-                try:
-                    aff = AffiliateModel.objects.get(aid=aid)
-                    AffiliateModelStats.objects.create(affiliate=aff,
-                        total_views=1, unique_visitors=1)
-                except AffiliateModel.DoesNotExist:
-                    l.warning("Access with unknown affiliate code: {0}"
-                        .format(aid))
-        return response
-
-    def is_track_path(self, path):
-        return len(filter(path.startswith, AFFILIATE_SKIP_PATH)) == 0
-
-    def is_new_ip(self, c_key, cache, ip):
-        aid_ip_pool = cache.get(c_key)
-        ip_new = True
-        if aid_ip_pool:
-            if isinstance(aid_ip_pool, set):
-                ip_new = ip not in aid_ip_pool
-        if not aid_ip_pool:
-            aid_ip_pool = set()
-        return ip_new, aid_ip_pool
-
-# TODO: attach lazy method to request: affiliate, that return Affiliate instance
+                prev_aid_dt_obj = parse_datetime(prev_aid_dt)
+                if (now - prev_aid_dt_obj).total_seconds() > app_settings.SESSION_AGE:
+                    # aid expired
+                    prev_aid = None
+                    prev_aid_dt = None
+                    if not new_aid:
+                        session.pop('_aid')
+                        session.pop('_aid_dt')
+        request.affiliate = SimpleLazyObject(lambda: get_affiliate(request, new_aid, prev_aid, prev_aid_dt))

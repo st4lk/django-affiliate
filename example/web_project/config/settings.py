@@ -10,8 +10,8 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from decimal import Decimal as D
 from os.path import join
+from django import VERSION as DJANGO_VERSION
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -51,6 +51,9 @@ INSTALLED_APPS = (
     'apps.products',
 )
 
+if DJANGO_VERSION < (1, 7):
+    INSTALLED_APPS += ('south', )
+
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -81,10 +84,9 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': ''
-        }
+    }
 }
 
-########## TEMPLATE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-context-processors
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
@@ -95,17 +97,13 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.request',
-    'apps.partner.context_processors.common',
-    'affiliate.context_processors.common',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
 TEMPLATE_DIRS = (
     join(BASE_DIR, 'templates'),
 )
-########## END TEMPLATE CONFIGURATION
 
-########## STATIC FILE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 STATIC_ROOT = join(os.path.dirname(BASE_DIR), 'staticfiles')
@@ -123,48 +121,33 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
-########## END STATIC FILE CONFIGURATION
 
-########## MEDIA CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#media-root
 MEDIA_ROOT = join(BASE_DIR, 'media')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = '/media/'
-########## END MEDIA CONFIGURATION
 
-########## URL Configuration
 ROOT_URLCONF = 'config.urls'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#wsgi-application
 WSGI_APPLICATION = 'config.wsgi.application'
-########## End URL Configuration
 
-########## AUTHENTICATION CONFIGURATION
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
-########## END AUTHENTICATION CONFIGURATION
 
-########## Custom user app defaults
 # Select the correct user model
-AUTH_USER_MODEL = "users.User"
+# AUTH_USER_MODEL = "users.User"
 LOGIN_REDIRECT_URL = "home"
 LOGIN_URL = "/users/signin/"
-########## END Custom user app defaults
 
-########## SLUGLIFIER
-AUTOSLUG_SLUGIFY_FUNCTION = "slugify.slugify"
-########## END SLUGLIFIER
-
-########## Mail settings
 EMAIL_HOST = "localhost"
 EMAIL_PORT = 1025
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, '../debug/emails')
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, '/tmp')
 SITE_EMAIL = 'no-reply@affiliate.com'
 
-########## End mail settings
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -172,8 +155,13 @@ SITE_EMAIL = 'no-reply@affiliate.com'
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#time-zone
 TIME_ZONE = 'Europe/Moscow'
 
+LANGUAGES = (
+    ('en', 'English'),
+    ('ru', 'Russian'),
+)
+
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#language-code
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
@@ -187,29 +175,17 @@ USE_L10N = True
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
 
-# Affiliate required settings
-AFFILIATE_MODEL = "partner.Affiliate"
-AFFILIATE_COUNT_MODEL = "partner.AffiliateStats"
-# Affiliate optional settings
-AFFILIATE_SESSION = True
-AFFILIATE_SESSION_AGE = 5 * 24 * 60 * 60  # 5 days in seconds
-AFFILIATE_SKIP_PATH_STARTS = ['/admin/', '/users/affiliate/']
-AFFILIATE_START_AID = "1000"
-AFFILIATE_MIN_BALANCE_FOR_REQUEST = 1.0
-AFFILIATE_REWARD_AMOUNT = D("5.0")
-AFFILIATE_REWARD_PERCENTAGE = True
-
-DEFAULT_CURRENCY = "USD"
 DEFAULT_IMAGE = STATIC_URL + 'images/no-image.png'
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake'
-    }
+# just in case south is used
+SOUTH_MIGRATION_MODULES = {
+    'affiliate': 'affiliate.south_migrations',
+    'partner': 'apps.partner.south_migrations',
+    'products': 'apps.products.south_migrations',
 }
 
-########## LOGGING CONFIGURATION
+AFFILIATE_AFFILIATE_MODEL = 'partner.Affiliate'
+
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#logging
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -246,24 +222,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'main_formatter',
         },
-        'production_file': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '../logs/main.log',
-            'maxBytes': 1024*1024*5,  # 5 MB
-            'backupCount': 7,
-            'formatter': 'main_formatter',
-            'filters': ['require_debug_false'],
-        },
-        'debug_file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '../logs/main_debug.log',
-            'maxBytes': 1024*1024*5,  # 5 MB
-            'backupCount': 7,
-            'formatter': 'main_formatter',
-            'filters': ['require_debug_true'],
-        },
         'null': {
             "class": 'django.utils.log.NullHandler',
         }
@@ -277,20 +235,15 @@ LOGGING = {
         'django': {
             'handlers': ['null', ],
         },
-        'django.db': {
-            'propagate': False,
-            'handlers': ["console", 'debug_file'],
-        },
         'py.warnings': {
             'handlers': ['null', ],
         },
         '': {
-            'handlers': ['console', 'production_file', 'debug_file'],
+            'handlers': ['console'],
             'level': "DEBUG",
         },
     }
 }
-########## END LOGGING CONFIGURATION
 
 try:
     from settings_local import *

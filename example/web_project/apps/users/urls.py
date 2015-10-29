@@ -2,7 +2,7 @@
 from django.conf.urls import patterns, url
 from django.contrib.auth.views import login, logout
 from django.views.generic import TemplateView
-import views
+from . import views
 
 
 urlpatterns = patterns('',
