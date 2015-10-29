@@ -1,6 +1,9 @@
 Affiliate system for django
 ===========================
 
+[![Build Status](https://travis-ci.org/st4lk/django-affiliate.svg?branch=master)](https://travis-ci.org/st4lk/django-affiliate) [![Coverage Status](https://coveralls.io/repos/st4lk/django-affiliate/badge.svg?branch=master)](https://coveralls.io/r/st4lk/django-affiliate?branch=master)
+
+
 Affiliate system to reward partners with their visitors payments.
 Contains abstract models with basic functionality, so it is easy
 to subclass them and add your custom logic and relations.
