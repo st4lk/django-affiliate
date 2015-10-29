@@ -22,7 +22,7 @@ if sys.argv[-1] == 'generate_rst':
 
 if sys.argv[-1] == 'tag':
     print("Tagging the version on github:")
-    os.system("git tag -a %s -m 'version %s'" % (__version__, __version__))
+    os.system("git tag -a v%s -m 'version %s'" % (__version__, __version__))
     os.system("git push --tags")
     sys.exit()
 
