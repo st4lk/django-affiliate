@@ -134,3 +134,4 @@ Define in settings.py
 - AFFILIATE_SAVE_IN_SESSION - save affiliate id in session or not. Default `True`.
 - AFFILIATE_SESSION_AGE - how long keep affiliate id in session, in seconds. Default `5 * 24 * 60 * 60` seconds (5 days).
 - AFFILIATE_DEFAULT_LINK - default link, that will be used by `Affiliate.build_absolute_affiliate_uri` and `.build_affiliate_url`. Default `'/'`.
+- AFFILIATE_REMOVE_PARAM_AND_REDIRECT - if True, remove affiliate param from url and redirect to same url (affiliate data will be saved in session). Default `False`.

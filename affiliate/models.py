@@ -45,8 +45,7 @@ class AbstractAffiliate(models.Model):
         return True
 
     def build_absolute_affiliate_uri(self, request, location=None):
-        location = location or app_settings.DEFAULT_LINK
-        uri = request.build_absolute_uri(location)
+        uri = request.build_absolute_uri(self.build_affiliate_url(location))
         return add_affiliate_code(uri, self.pk)
 
     def build_affiliate_url(self, location=None):

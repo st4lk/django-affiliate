@@ -5,14 +5,15 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import SimpleLazyObject
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from django.http import HttpResponseRedirect
 
 from .models import NoAffiliate
-from .utils import get_model
+from . import utils
 
 l = logging.getLogger(__name__)
 
 
-AffiliateModel = get_model(app_settings.AFFILIATE_MODEL)
+AffiliateModel = utils.get_affiliate_model()
 
 def get_affiliate(request, new_aid, prev_aid, prev_aid_dt):
     if not hasattr(request, '_cached_affiliate'):
@@ -53,6 +54,9 @@ class AffiliateMiddleware(object):
             if app_settings.SAVE_IN_SESSION:
                 session['_aid'] = new_aid
                 session['_aid_dt'] = now.isoformat()
+            if app_settings.REMOVE_PARAM_AND_REDIRECT:
+                url = utils.remove_affiliate_code(request.get_full_path())
+                return HttpResponseRedirect(url)
         if prev_aid and app_settings.SAVE_IN_SESSION:
             if prev_aid_dt is None:
                 l.error('_aid_dt not found in session')

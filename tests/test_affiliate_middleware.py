@@ -6,6 +6,8 @@ from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
+from django.test.utils import override_settings
+from django.utils import six
 from model_mommy import mommy
 from freezegun import freeze_time
 
@@ -88,6 +90,29 @@ class TestAffiliateMiddleware(TestCase):
         self.assertEqual(resp.context['request'].affiliate.pk, affiliate.pk)
 
 
+@override_settings(AFFILIATE_REMOVE_PARAM_AND_REDIRECT=True)
+class TestAffiliateMiddlewareRemoveAndRedirect(TestCase):
+    def setUp(self):
+        super(TestAffiliateMiddlewareRemoveAndRedirect, self).setUp()
+        six.moves.reload_module(app_settings)
+
+    def test_affiliate_code_remove_from_url(self):
+        affiliate = mommy.make(settings.AFFILIATE_AFFILIATE_MODEL)
+        resp = self.client.get(get_aid_url('/', affiliate.aid))
+        self.assertRedirects(resp, '/')
+        resp = self.client.get('/')
+        self.assertTrue(resp.context['request'].affiliate.exists())
+        self.assertEqual(resp.context['request'].affiliate.pk, affiliate.pk)
+
+    def test_affiliate_code_remove_from_url_other_params_kept(self):
+        affiliate = mommy.make(settings.AFFILIATE_AFFILIATE_MODEL)
+        resp = self.client.get(get_aid_url('/', affiliate.aid) + '&other=param')
+        self.assertRedirects(resp, '/?other=param')
+        resp = self.client.get('/')
+        self.assertTrue(resp.context['request'].affiliate.exists())
+        self.assertEqual(resp.context['request'].affiliate.pk, affiliate.pk)
+
+
 @modify_settings(MIDDLEWARE_CLASSES={
     'remove': [
         'django.contrib.sessions.middleware.SessionMiddleware',
@@ -100,6 +125,10 @@ class TestAffiliateMiddleware(TestCase):
     ]
 })
 class TestAffiliateMiddlewareNoSession(TestCase):
+    def setUp(self):
+        super(TestAffiliateMiddlewareNoSession, self).setUp()
+        six.moves.reload_module(app_settings)
+
     def test_no_session_affiliate_in_url(self):
         app_settings.SAVE_IN_SESSION = False
 
