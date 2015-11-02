@@ -54,7 +54,7 @@ class AffiliateMiddleware(object):
             if app_settings.SAVE_IN_SESSION:
                 session['_aid'] = new_aid
                 session['_aid_dt'] = now.isoformat()
-            if app_settings.REMOVE_PARAM_AND_REDIRECT:
+            if app_settings.REMOVE_PARAM_AND_REDIRECT and request.method == 'GET':
                 url = utils.remove_affiliate_code(request.get_full_path())
                 return HttpResponseRedirect(url)
         if prev_aid and app_settings.SAVE_IN_SESSION:
