@@ -1,6 +1,10 @@
 django-affiliate release notes
 ==============================
 
+v0.3.1 (2015-11-29)
+-------------------
+- add setting AFFILIATE_REMOVE_PARAM_AND_REDIRECT, that allows to remove affiliate param from url and redirect
+
 v0.2.1 (2015-10-29)
 -------------------
 - add translations to pypi
