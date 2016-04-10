@@ -35,6 +35,7 @@ Used by projects
 ----------------
 - [builds.io](http://builds.io/)
 - [wirelayer.net](http://www.wirelayer.net/)
+- [smmplanner.com](https://smmplanner.com/)
 
 
 Requirements
