@@ -15,13 +15,21 @@ l = logging.getLogger(__name__)
 
 AffiliateModel = utils.get_affiliate_model()
 
+def _get_affiliate_instance(aid_code):
+    try:
+        return AffiliateModel.objects.filter(pk=aid_code).first()
+    except (ValueError, TypeError) as e:
+        l.warning(u"Bad aid_code type: %s. Error message: %s.", aid_code, e)
+        return None
+
+
 def get_affiliate(request, new_aid, prev_aid, prev_aid_dt):
     if not hasattr(request, '_cached_affiliate'):
-        affiliate = AffiliateModel.objects.filter(pk=new_aid).first()
+        affiliate = _get_affiliate_instance(new_aid)
         if affiliate is None or not affiliate.is_active:
             prev_affiliate = None
             if prev_aid:
-                prev_affiliate = AffiliateModel.objects.filter(pk=prev_aid).first()
+                prev_affiliate = _get_affiliate_instance(prev_aid)
             if prev_affiliate is None or not prev_affiliate.is_active:
                 affiliate = affiliate or prev_affiliate or NoAffiliate()
             else:

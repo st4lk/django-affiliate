@@ -26,6 +26,11 @@ class TestAffiliateMiddleware(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(resp.context['request'].affiliate.exists())
 
+    def test_bad_affiliate_code_type(self):
+        resp = self.client.get(get_aid_url('/', 'nailgun'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(resp.context['request'].affiliate.exists())
+
     def test_affiliate_assigned(self):
         affiliate = mommy.make(settings.AFFILIATE_AFFILIATE_MODEL)
         resp = self.client.get(get_aid_url('/', affiliate.aid))
