@@ -1,7 +1,13 @@
 django-affiliate release notes
 ==============================
 
-v0.3.2 (2015-11-29)
+v0.3.3 (2016-04-10)
+-------------------
+- Don't raise exception in case of bad aid code type
+
+Issues: #10
+
+v0.3.2 (2016-11-29)
 -------------------
 - if AFFILIATE_REMOVE_PARAM_AND_REDIRECT is True, perform redirect only in case of GET request method
 
