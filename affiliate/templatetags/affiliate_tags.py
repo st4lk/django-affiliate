@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
-from django.template.base import Library, TemplateSyntaxError, kwarg_re
+from django.template import Library, TemplateSyntaxError
+from django.template.base import kwarg_re
 from django.template.defaulttags import URLNode
 from affiliate.utils import add_affiliate_code
 
@@ -47,10 +48,3 @@ def url_aff(parser, token):
                 args.append(parser.compile_filter(value))
 
     return AffiliateURLNode(viewname, args, kwargs, asvar)
-
-
-@register.simple_tag(takes_context=True)
-def render_banner(context, affiliate, banner, autoescape=False):
-    img_html = affiliate.render_img(banner, context['request'],
-        autoescape=autoescape)
-    return img_html

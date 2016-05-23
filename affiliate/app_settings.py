@@ -5,7 +5,7 @@ from decimal import Decimal as D
 
 AFFILIATE_MODEL = settings.AFFILIATE_AFFILIATE_MODEL  # mandatory, must be set
 PARAM_NAME = getattr(settings, 'AFFILIATE_PARAM_NAME', 'aid')
-REWARD_AMOUNT = getattr(settings, 'AFFILIATE_REWARD_AMOUNT', 10)
+REWARD_AMOUNT = getattr(settings, 'AFFILIATE_REWARD_AMOUNT', D('10.0'))
 REWARD_PERCENTAGE = getattr(settings, 'AFFILIATE_REWARD_PERCENTAGE', True)
 SAVE_IN_SESSION = getattr(settings, 'AFFILIATE_SAVE_IN_SESSION', True)
 SESSION_AGE = getattr(settings, 'AFFILIATE_SESSION_AGE', 5 * 24 * 60 * 60)
