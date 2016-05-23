@@ -1,6 +1,13 @@
 django-affiliate release notes
 ==============================
 
+v0.4.0 (2016-05-24)
+-------------------
+- django 1.9 support
+- python 3.5 support
+
+Issues: #12
+
 v0.3.3 (2016-04-10)
 -------------------
 - Don't raise exception in case of bad aid code type
